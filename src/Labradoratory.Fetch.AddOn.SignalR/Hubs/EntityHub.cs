@@ -22,6 +22,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
         /// <param name="path">
         /// <para>The path representing the entity or entities to subscribe to.</para>
         /// <para>The path should start with the entity type name and can be followed by the Id of a specific instance.</para>
+        /// <para>Path parts are separated by a <c>/</c> character.</para>
         /// <list type="bullet">
         /// <item>  
         /// <term>{type}</term>  

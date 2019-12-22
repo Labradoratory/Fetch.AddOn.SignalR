@@ -2,6 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
+    <Authors>Ed Downs</Authors>
+    <Company>Labradoratory</Company>
+    <RepositoryType>github</RepositoryType>
+    <PackageTags>signalr, fetch, aspnetcore</PackageTags>
+    <Description>An add-on for the Fetch repository that adds SignalR notifications related to entity changes.</Description>
+    <Copyright>2019</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
