@@ -15,6 +15,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
     public class EntityHub<T> : Hub<T>, IEntityHub
         where T : class
     {
+        // TODO: Define what a "path" is.  Should we use a special object instead of just a string?
         /// <summary>
         /// Subscribes to receive notifications regarding the entity or entities specified by the path.
         /// </summary>
