@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Processors
 {
+    // TODO: Might need to add a way to conver the entity type to a view.
+
     /// <summary>
     /// Sends Signalr notifications on <see cref="Entity"/> added via an <see cref="EntityHub{T}"/>.
     /// </summary>
@@ -17,10 +19,22 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         where TEntity : Entity
         where THub : Hub, IEntityHub
     {
+        private readonly string _name;
         private readonly IHubContext<THub> _hubContext;
 
         public SignalrOnAdded(IHubContext<THub> hubContext)
+            : this(typeof(Entity).Name, hubContext)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SignalrOnUpdated{TEntity, THub}"/> class.
+        /// </summary>
+        /// <param name="name">The name to use to identify the type in notifications.</param>
+        /// <param name="hubContext">The hub context.</param>
+        public SignalrOnAdded(string name, IHubContext<THub> hubContext)
+        {
+            _name = name;
             _hubContext = hubContext;
         }
 
@@ -28,7 +42,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
 
         public override Task ProcessAsync(EntityAddedPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
-            return _hubContext.AddAsync(package.Entity, cancellationToken);
+            return _hubContext.AddAsync(_name, package.Entity, cancellationToken);
         }
     }
 }

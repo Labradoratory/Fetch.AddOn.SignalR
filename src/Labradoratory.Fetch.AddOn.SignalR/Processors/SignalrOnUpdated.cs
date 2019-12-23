@@ -18,10 +18,26 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         where TEntity : Entity
         where THub : Hub, IEntityHub
     {
+        private readonly string _name;
         private readonly IHubContext<THub> _hubContext;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SignalrOnUpdated{TEntity, THub}"/> class.
+        /// </summary>
+        /// <param name="hubContext">The hub context.</param>
+        /// <remarks>The <typeparamref name="TEntity"/> name will be used in notifications.</remarks>
         public SignalrOnUpdated(IHubContext<THub> hubContext)
+            : this(typeof(TEntity).Name, hubContext)
+        { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SignalrOnUpdated{TEntity, THub}"/> class.
+        /// </summary>
+        /// <param name="name">The name to use to identify the type in notifications.</param>
+        /// <param name="hubContext">The hub context.</param>
+        public SignalrOnUpdated(string name, IHubContext<THub> hubContext)
         {
+            _name = name;
             _hubContext = hubContext;
         }
 
@@ -31,7 +47,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         {
             // TODO: Convert changes to JSON patch.
             var patch = (Operation[])null; // changes.ToJsonPatch();
-            return _hubContext.UpdateAsync(typeof(TEntity).Name, package.Entity.EncodeKeys(), patch, cancellationToken);
+            return _hubContext.UpdateAsync(_name, package.Entity.EncodeKeys(), patch, cancellationToken);
         }
     }
 }

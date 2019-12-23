@@ -17,10 +17,22 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         where TEntity : Entity
         where THub : Hub, IEntityHub
     {
+        private readonly string _name;
         private readonly IHubContext<THub> _hubContext;
 
         public SignalrOnDeleted(IHubContext<THub> hubContext)
+            : this(typeof(Entity).Name, hubContext)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SignalrOnUpdated{TEntity, THub}"/> class.
+        /// </summary>
+        /// <param name="name">The name to use to identify the type in notifications.</param>
+        /// <param name="hubContext">The hub context.</param>
+        public SignalrOnDeleted(string name, IHubContext<THub> hubContext)
+        {
+            _name = name;
             _hubContext = hubContext;
         }
 
@@ -28,7 +40,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
 
         public override Task ProcessAsync(EntityDeletedPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
-            return _hubContext.DeleteAsync(typeof(TEntity).Name, package.Entity.EncodeKeys(), cancellationToken);
+            return _hubContext.DeleteAsync(_name, package.Entity.EncodeKeys(), cancellationToken);
         }
     }
 }
