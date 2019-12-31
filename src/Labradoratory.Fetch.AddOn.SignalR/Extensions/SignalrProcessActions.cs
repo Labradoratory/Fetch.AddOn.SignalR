@@ -14,6 +14,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Extensions
         Delete = 2,
 
         /// <summary><see cref="Entity"/> updated.</summary>
-        Update = 4
+        Update = 4,
+
+        /// <summary><see cref="Entity"/> added, deleted and updated.</summary>
+        All = 7,
     }
 }

@@ -22,7 +22,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Extensions
         /// <param name="actions">The actions to notify on.</param>
         /// <returns></returns>
         /// <remarks>The <typeparamref name="TEntity"/> name will be used in notifications.</remarks>
-        public static IServiceCollection AddFetchSignalrProcessor<TEntity, THub>(this IServiceCollection serviceCollection, SignalrProcessActions actions)
+        public static IServiceCollection AddFetchSignalrProcessor<TEntity, THub>(this IServiceCollection serviceCollection, SignalrProcessActions actions = SignalrProcessActions.All)
             where TEntity : Entity
             where THub : Hub, IEntityHub
         {
