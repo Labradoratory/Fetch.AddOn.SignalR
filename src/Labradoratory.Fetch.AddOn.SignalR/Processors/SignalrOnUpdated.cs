@@ -20,14 +20,16 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
     {
         private readonly string _name;
         private readonly IHubContext<THub> _hubContext;
+        private readonly ISignalrUpdateDataTransformer<TEntity> _dataTransformer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignalrOnUpdated{TEntity, THub}"/> class.
         /// </summary>
         /// <param name="hubContext">The hub context.</param>
+        /// <param name="dataTransformer">A data transformer to apply before sending the updated notification.</param>
         /// <remarks>The <typeparamref name="TEntity"/> name will be used in notifications.</remarks>
-        public SignalrOnUpdated(IHubContext<THub> hubContext)
-            : this(typeof(TEntity).Name, hubContext)
+        public SignalrOnUpdated(IHubContext<THub> hubContext, ISignalrUpdateDataTransformer<TEntity> dataTransformer = null)
+            : this(typeof(TEntity).Name, hubContext, dataTransformer)
         { }
 
         /// <summary>
@@ -35,18 +37,20 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         /// </summary>
         /// <param name="name">The name to use to identify the type in notifications.</param>
         /// <param name="hubContext">The hub context.</param>
-        public SignalrOnUpdated(string name, IHubContext<THub> hubContext)
+        /// <param name="dataTransformer">A data transformer to apply before sending the updated notification.</param>
+        public SignalrOnUpdated(string name, IHubContext<THub> hubContext, ISignalrUpdateDataTransformer<TEntity> dataTransformer = null)
         {
             _name = name;
             _hubContext = hubContext;
+            _dataTransformer = dataTransformer;
         }
 
         public override uint Priority => 0;
 
         public override Task ProcessAsync(EntityUpdatedPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
-            // TODO: Convert changes to JSON patch.
-            var patch = (Operation[])null; // changes.ToJsonPatch();
+            // TODO: Convert changes to JSON patch.  This might be a seperate library.
+            var patch = _dataTransformer?.Transform(package) ?? null; // package.Changes.ToJsonPatch();
             return _hubContext.UpdateAsync(_name, package.Entity.EncodeKeys(), patch, cancellationToken);
         }
     }

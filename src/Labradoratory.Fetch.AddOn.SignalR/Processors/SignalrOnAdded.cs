@@ -21,9 +21,15 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
     {
         private readonly string _name;
         private readonly IHubContext<THub> _hubContext;
+        private readonly ISignalrAddDataTransformer<TEntity> _dataTransformer;
 
-        public SignalrOnAdded(IHubContext<THub> hubContext)
-            : this(typeof(Entity).Name, hubContext)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SignalrOnAdded{TEntity, THub}"/> class.
+        /// </summary>
+        /// <param name="hubContext">The hub context.</param>
+        /// <param name="dataTransformer">A data transformer to apply before sending the added notification.</param>
+        public SignalrOnAdded(IHubContext<THub> hubContext, ISignalrAddDataTransformer<TEntity> dataTransformer = null)
+            : this(typeof(TEntity).Name, hubContext, dataTransformer)
         {
         }
 
@@ -32,17 +38,21 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         /// </summary>
         /// <param name="name">The name to use to identify the type in notifications.</param>
         /// <param name="hubContext">The hub context.</param>
-        public SignalrOnAdded(string name, IHubContext<THub> hubContext)
+        /// <param name="dataTransformer">A data transformer to apply before sending the added notification.</param>
+        public SignalrOnAdded(string name, IHubContext<THub> hubContext, ISignalrAddDataTransformer<TEntity> dataTransformer = null)
         {
             _name = name;
             _hubContext = hubContext;
+            _dataTransformer = dataTransformer;
         }
 
         public override uint Priority => 0;
 
         public override Task ProcessAsync(EntityAddedPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
-            return _hubContext.AddAsync(_name, package.Entity, cancellationToken);
+            var data = _dataTransformer?.Transform(package) ?? package.Entity;
+
+            return _hubContext.AddAsync(_name, data, cancellationToken);
         }
     }
 }

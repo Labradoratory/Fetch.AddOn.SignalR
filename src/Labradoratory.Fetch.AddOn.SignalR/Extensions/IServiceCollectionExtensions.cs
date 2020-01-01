@@ -22,20 +22,13 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Extensions
         /// <param name="actions">The actions to notify on.</param>
         /// <returns></returns>
         /// <remarks>The <typeparamref name="TEntity"/> name will be used in notifications.</remarks>
-        public static IServiceCollection AddFetchSignalrProcessor<TEntity, THub>(this IServiceCollection serviceCollection, SignalrProcessActions actions = SignalrProcessActions.All)
+        public static IServiceCollection AddFetchSignalrProcessor<TEntity, THub>(
+            this IServiceCollection serviceCollection, 
+            SignalrProcessActions actions = SignalrProcessActions.All)
             where TEntity : Entity
             where THub : Hub, IEntityHub
         {
-            if (actions.HasFlag(SignalrProcessActions.Add))
-                serviceCollection.AddFetchAddedProcessor<TEntity, SignalrOnAdded<TEntity, THub>>();
-
-            if (actions.HasFlag(SignalrProcessActions.Delete))
-                serviceCollection.AddFetchDeletedProcessor<TEntity, SignalrOnDeleted<TEntity, THub>>();
-
-            if (actions.HasFlag(SignalrProcessActions.Update))
-                serviceCollection.AddFetchUpdatedProcessor<TEntity, SignalrOnUpdated<TEntity, THub>>();
-
-            return serviceCollection;
+            return serviceCollection.AddFetchSignalrProcessor<TEntity, THub>(typeof(TEntity).Name, actions);
         }
 
         /// <summary>
@@ -47,13 +40,16 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Extensions
         /// <param name="notificationName">The name to use in the notifications.</param>
         /// <param name="actions">The actions to notify on.</param>
         /// <returns></returns>
-        public static IServiceCollection AddFetchSignalrProcessor<TEntity, THub>(this IServiceCollection serviceCollection, string notificationName, SignalrProcessActions actions)
+        public static IServiceCollection AddFetchSignalrProcessor<TEntity, THub>(
+            this IServiceCollection serviceCollection, 
+            string notificationName, 
+            SignalrProcessActions actions = SignalrProcessActions.All)
             where TEntity : Entity
             where THub : Hub, IEntityHub
         {
             if (actions.HasFlag(SignalrProcessActions.Add))
                 serviceCollection.AddTransient<IProcessor<EntityAddedPackage<TEntity>>>(
-                    sp => new SignalrOnAdded<TEntity, THub>(notificationName, sp.GetService<IHubContext<THub>>()));
+                    sp => new SignalrOnAdded<TEntity, THub>(notificationName, sp.GetService<IHubContext<THub>>(), sp.GetService<ISignalrAddDataTransformer<TEntity>>()));
 
             if (actions.HasFlag(SignalrProcessActions.Delete))
                 serviceCollection.AddTransient<IProcessor<EntityDeletedPackage<TEntity>>>(
@@ -61,7 +57,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Extensions
 
             if (actions.HasFlag(SignalrProcessActions.Update))
                 serviceCollection.AddTransient<IProcessor<EntityUpdatedPackage<TEntity>>>(
-                    sp => new SignalrOnUpdated<TEntity, THub>(notificationName, sp.GetService<IHubContext<THub>>()));
+                    sp => new SignalrOnUpdated<TEntity, THub>(notificationName, sp.GetService<IHubContext<THub>>(), sp.GetService<ISignalrUpdateDataTransformer<TEntity>>()));
 
             return serviceCollection;
         }

@@ -35,7 +35,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
         /// </list>
         /// </param>
         /// <exception cref="ArgumentException">path</exception>
-        public async Task SubscribeEntity(string path)
+        public virtual async Task SubscribeEntity(string path)
         {
             var parts = path.ToLower().Split("/");
             if (parts.Length == 0)
@@ -60,7 +60,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
         /// <remarks>
         /// Must have called the Subscribe method with the <paramref name="path"/> in order to unsubscribe.
         /// </remarks>
-        public async Task UnsubscribeEntity(string path)
+        public virtual async Task UnsubscribeEntity(string path)
         {
             // TODO: Since we are just removing, do we need to validate?  Probalby not.
 
@@ -107,18 +107,17 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
         /// Sends an entity added notification to the appropriate groups for the provided <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="THub">The type of the Hub used for notifications.  Must be a type of <see cref="EntityHub"/>.</typeparam>
-        /// <typeparam name="TEntity">The type of the entity to notify about.</typeparam>
         /// <param name="context">The context to use to send notifications.</param>
         /// <param name="type">The name of the type of entity to notify about.</param>
-        /// <param name="entity">The entity to send the add notification for.</param>
+        /// <param name="data">The data to send the add notification for.</param>
         /// <param name="cancellationToken">[Optional] The token to monitor for cancellation requests.</param>
         /// <returns>The task.</returns>
-        public static async Task AddAsync<THub, TEntity>(this IHubContext<THub> context, string type, TEntity entity, CancellationToken cancellationToken = default)
+        public static async Task AddAsync<THub>(this IHubContext<THub> context, string type, object data, CancellationToken cancellationToken = default)
             where THub : Hub, IEntityHub
         {
             // TODO: Include tenant info in group.
             var entityName = type.ToLower();
-            await context.Clients.Group(entityName).SendAsync($"{entityName}/add", entity, cancellationToken);
+            await context.Clients.Group(entityName).SendAsync($"{entityName}/add", data, cancellationToken);
         }
 
         /// <summary>

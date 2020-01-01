@@ -20,8 +20,12 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         private readonly string _name;
         private readonly IHubContext<THub> _hubContext;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SignalrOnDeleted{TEntity, THub}"/> class.
+        /// </summary>
+        /// <param name="hubContext">The hub context.</param>
         public SignalrOnDeleted(IHubContext<THub> hubContext)
-            : this(typeof(Entity).Name, hubContext)
+            : this(typeof(TEntity).Name, hubContext)
         {
         }
 
