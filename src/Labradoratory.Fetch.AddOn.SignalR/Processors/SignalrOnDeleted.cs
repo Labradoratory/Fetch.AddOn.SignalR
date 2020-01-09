@@ -13,7 +13,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <typeparam name="THub">The type of the hub.</typeparam>
     /// <seealso cref="Labradoratory.Fetch.Processors.EntityDeletedProcessor{TEntity}" />
-    public class SignalrOnDeleted<TEntity, THub> : EntityDeletedProcessor<TEntity>
+    public class SignalrOnDeleted<TEntity, THub> : IProcessor<EntityDeletedPackage<TEntity>>
         where TEntity : Entity
         where THub : Hub, IEntityHub
     {
@@ -40,9 +40,11 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
             _hubContext = hubContext;
         }
 
-        public override uint Priority => 0;
+        /// <inheritdoc />
+        public uint Priority => 0;
 
-        public override Task ProcessAsync(EntityDeletedPackage<TEntity> package, CancellationToken cancellationToken = default)
+        /// <inheritdoc />
+        public Task ProcessAsync(EntityDeletedPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
             return _hubContext.DeleteAsync(_name, package.Entity.EncodeKeys(), cancellationToken);
         }

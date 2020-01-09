@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.JsonPatch.Operations;
 
 namespace Labradoratory.Fetch.AddOn.SignalR
 {
+    // TODO: This works, but it feels kind of sloppy.  Maybe we should just let
+    // the user send whatever they want as part of the notification.
+
     /// <summary>
     /// Defines the members that a transformer of <see cref="EntityUpdatedPackage{TEntity}"/> should implement.  
     /// </summary>

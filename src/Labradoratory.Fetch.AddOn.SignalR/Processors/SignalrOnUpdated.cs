@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Labradoratory.Fetch.AddOn.SignalR.Hubs;
 using Labradoratory.Fetch.Processors;
 using Labradoratory.Fetch.Processors.DataPackages;
-using Microsoft.AspNetCore.JsonPatch.Operations;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Processors
@@ -14,7 +13,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <typeparam name="THub">The type of the hub.</typeparam>
     /// <seealso cref="Labradoratory.Fetch.Processors.EntityUpdatedProcessor{TEntity}" />
-    public class SignalrOnUpdated<TEntity, THub> : EntityUpdatedProcessor<TEntity>
+    public class SignalrOnUpdated<TEntity, THub> : IProcessor<EntityUpdatedPackage<TEntity>>
         where TEntity : Entity
         where THub : Hub, IEntityHub
     {
@@ -45,9 +44,11 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
             _dataTransformer = dataTransformer;
         }
 
-        public override uint Priority => 0;
+        /// <inheritdoc />
+        public uint Priority => 0;
 
-        public override Task ProcessAsync(EntityUpdatedPackage<TEntity> package, CancellationToken cancellationToken = default)
+        /// <inheritdoc />
+        public Task ProcessAsync(EntityUpdatedPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
             // TODO: Convert changes to JSON patch.  This might be a seperate library.
             var patch = _dataTransformer?.Transform(package) ?? null; // package.Changes.ToJsonPatch();

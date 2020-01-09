@@ -15,7 +15,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <typeparam name="THub">The type of the hub.</typeparam>
     /// <seealso cref="Labradoratory.Fetch.Processors.EntityAddedProcessor{TEntity}" />
-    public class SignalrOnAdded<TEntity, THub> : EntityAddedProcessor<TEntity>
+    public class SignalrOnAdded<TEntity, THub> : IProcessor<EntityAddedPackage<TEntity>>
         where TEntity : Entity
         where THub : Hub, IEntityHub
     {
@@ -46,9 +46,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
             _dataTransformer = dataTransformer;
         }
 
-        public override uint Priority => 0;
+        public uint Priority => 0;
 
-        public override Task ProcessAsync(EntityAddedPackage<TEntity> package, CancellationToken cancellationToken = default)
+        public Task ProcessAsync(EntityAddedPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
             var data = _dataTransformer?.Transform(package) ?? package.Entity;
 
