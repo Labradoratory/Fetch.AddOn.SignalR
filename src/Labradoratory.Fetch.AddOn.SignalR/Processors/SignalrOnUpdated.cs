@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Labradoratory.Fetch.AddOn.SignalR.Hubs;
+using Labradoratory.Fetch.Extensions;
 using Labradoratory.Fetch.Processors;
 using Labradoratory.Fetch.Processors.DataPackages;
 using Microsoft.AspNetCore.SignalR;
@@ -50,8 +51,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         /// <inheritdoc />
         public Task ProcessAsync(EntityUpdatedPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
-            // TODO: Convert changes to JSON patch.  This might be a seperate library.
-            var patch = _dataTransformer?.Transform(package) ?? null; // package.Changes.ToJsonPatch();
+            var patch = _dataTransformer?.Transform(package) ?? package.Changes.ToJsonPatch();
             return _hubContext.UpdateAsync(_name, package.Entity.EncodeKeys(), patch, cancellationToken);
         }
     }
