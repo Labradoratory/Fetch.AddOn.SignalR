@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <Authors>Ed Downs</Authors>
     <Company>Labradoratory</Company>
     <RepositoryType>github</RepositoryType>
@@ -11,8 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Labradoratory.Fetch" Version="1.0.0-beta.13" />
-    <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="3.1.0" />
+    <PackageReference Include="Labradoratory.Fetch" Version="1.0.0-beta.17" />
+    <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="3.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
   </ItemGroup>
 
