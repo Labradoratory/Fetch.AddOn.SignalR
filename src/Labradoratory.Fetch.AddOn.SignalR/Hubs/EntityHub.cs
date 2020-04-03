@@ -15,6 +15,16 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
     public class EntityHub<T> : Hub<T>, IEntityHub
         where T : class
     {
+        /// <summary>
+        /// Gets the <see cref="IGroupManager"/> that should be used for managing groups.
+        /// </summary>
+        /// <returns>The <see cref="IGroupManager"/>.</returns>
+        /// <remarks>
+        /// This allows for some customization / extension that SignalR is currently lacking.
+        /// The default implmentation just return the <see cref="Hub.Groups"/> property.
+        /// </remarks>
+        protected virtual IGroupManager GetGroups() => Groups;
+
         // TODO: Define what a "path" is.  Should we use a special object instead of just a string?
         /// <summary>
         /// Subscribes to receive notifications regarding the entity or entities specified by the path.
@@ -26,7 +36,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
         /// <list type="bullet">
         /// <item>  
         /// <term>{type}</term>  
-        /// <description>This path will receive change notifications for all instances of the the specified type.</description>  
+        /// <description>This path will receive change notifications for all instances of the specified type.</description>  
         /// </item> 
         /// <item>  
         /// <term>{type}/{id}</term>  
@@ -49,8 +59,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
 
             // TODO: Include tenant info in group.
 
-            var groups = Groups;
-            await groups.AddToGroupAsync(Context.ConnectionId, path);
+            await GetGroups().AddToGroupAsync(Context.ConnectionId, path);
         }
 
         /// <summary>
@@ -66,7 +75,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
 
             // TODO: Include tenant info in group.
 
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, path);
+            await GetGroups().RemoveFromGroupAsync(Context.ConnectionId, path);
         }
     }
 
