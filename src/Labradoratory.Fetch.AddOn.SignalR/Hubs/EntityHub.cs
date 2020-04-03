@@ -15,6 +15,17 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
     public class EntityHub<T> : Hub<T>, IEntityHub
         where T : class
     {
+        private readonly ISignalrGroupNameTransformer _groupNameTransformer;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EntityHub{T}"/> class.
+        /// </summary>
+        /// <param name="groupNameTransformer">[Optional] The group name transformer.</param>
+        public EntityHub(ISignalrGroupNameTransformer groupNameTransformer = null)
+        {
+            _groupNameTransformer = groupNameTransformer;
+        }
+
         /// <summary>
         /// Gets the <see cref="IGroupManager"/> that should be used for managing groups.
         /// </summary>
@@ -59,7 +70,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
 
             // TODO: Include tenant info in group.
 
-            await GetGroups().AddToGroupAsync(Context.ConnectionId, path);
+            await GetGroups().AddToGroupAsync(Context.ConnectionId, _groupNameTransformer.TransformIfPossible(path));
         }
 
         /// <summary>
@@ -104,12 +115,13 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
         /// <typeparam name="TEntity">The type of the entity to notify about.</typeparam>
         /// <param name="context">The context to use to send notifications.</param>
         /// <param name="entity">The entity to send the add notification for.</param>
+        /// <param name="groupNameFormatter">[Optional] A function that can alter the group name.</param>
         /// <param name="cancellationToken">[Optional] The token to monitor for cancellation requests.</param>
         /// <returns>The task.</returns>
-        public static Task AddAsync<THub, TEntity>(this IHubContext<THub> context, TEntity entity, CancellationToken cancellationToken = default)
+        public static Task AddAsync<THub, TEntity>(this IHubContext<THub> context, TEntity entity, ISignalrGroupNameTransformer groupTransformer = null, CancellationToken cancellationToken = default)
             where THub : Hub, IEntityHub
         {
-            return context.AddAsync(typeof(TEntity).Name, entity, cancellationToken);
+            return context.AddAsync(typeof(TEntity).Name, entity, groupTransformer, cancellationToken);
         }
 
         /// <summary>
@@ -119,14 +131,15 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
         /// <param name="context">The context to use to send notifications.</param>
         /// <param name="type">The name of the type of entity to notify about.</param>
         /// <param name="data">The data to send the add notification for.</param>
+        /// <param name="groupNameFormatter">[Optional] A function that can alter the group name.</param>
         /// <param name="cancellationToken">[Optional] The token to monitor for cancellation requests.</param>
         /// <returns>The task.</returns>
-        public static async Task AddAsync<THub>(this IHubContext<THub> context, string type, object data, CancellationToken cancellationToken = default)
+        public static async Task AddAsync<THub>(this IHubContext<THub> context, string type, object data, ISignalrGroupNameTransformer groupTransformer = null, CancellationToken cancellationToken = default)
             where THub : Hub, IEntityHub
         {
             // TODO: Include tenant info in group.
             var entityName = type.ToLower();
-            await context.Clients.Group(entityName).SendAsync($"{entityName}/add", data, cancellationToken);
+            await context.Clients.Group(groupTransformer.TransformIfPossible(entityName)).SendAsync($"{entityName}/add", data, cancellationToken);
         }
 
         /// <summary>
@@ -137,9 +150,10 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
         /// <param name="type">The name of the type of entity to notify about.</param>
         /// <param name="id">The Id of the entity to notify about.</param>
         /// <param name="patch">The patch included in the update.</param>
+        /// <param name="groupNameFormatter">[Optional] A function that can alter the group name.</param>
         /// <param name="cancellationToken">[Optional] The token to monitor for cancellation requests.</param>
         /// <returns>The task.</returns>
-        public static Task UpdateAsync<THub>(this IHubContext<THub> context, string type, string id, Operation[] patch, CancellationToken cancellationToken = default)
+        public static Task UpdateAsync<THub>(this IHubContext<THub> context, string type, string id, Operation[] patch, ISignalrGroupNameTransformer groupTransformer = null, CancellationToken cancellationToken = default)
             where THub : Hub, IEntityHub
         {
             // TODO: Include tenant info in group.
@@ -147,8 +161,8 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
             // Send to both the type group and the specific instance group.
             // Use Task.WhenAll to allow the sends to run simultaniously if possible.
             return Task.WhenAll(
-                context.Clients.Group(entityName).SendAsync($"{entityName}/update", id, patch, cancellationToken),
-                context.Clients.Group($"{entityName}/{id}").SendAsync($"{entityName}/update", id, patch, cancellationToken));
+                context.Clients.Group(groupTransformer.TransformIfPossible(entityName)).SendAsync($"{entityName}/update", id, patch, cancellationToken),
+                context.Clients.Group(groupTransformer.TransformIfPossible($"{entityName}/{id}")).SendAsync($"{entityName}/update", id, patch, cancellationToken));
         }
 
         /// <summary>
@@ -158,19 +172,20 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
         /// <param name="context">The context to use to send notifications.</param>
         /// <param name="type">The name of the type of entity to notify about.</param>
         /// <param name="id">The Id of the entity to notify about.</param>
+        /// <param name="groupNameFormatter">[Optional] A function that can alter the group name.</param>
         /// <param name="cancellationToken">[Optional] The token to monitor for cancellation requests.</param>
         /// <returns>The task.</returns>
-        public static async Task DeleteAsync<THub>(this IHubContext<THub> context, string type, string id, CancellationToken cancellationToken = default)
+        public static async Task DeleteAsync<THub>(this IHubContext<THub> context, string type, string id, ISignalrGroupNameTransformer groupTransformer = null, CancellationToken cancellationToken = default)
             where THub : Hub, IEntityHub
         {
             // TODO: Include tenant info in group.
             var entityName = type.ToLower();
-            await context.Clients.Group(entityName).SendAsync($"{entityName}/delete", id, cancellationToken);
+            await context.Clients.Group(groupTransformer.TransformIfPossible(entityName)).SendAsync($"{entityName}/delete", id, cancellationToken);
         }
 
         // TODO: May want to add update and delete versions where the TEntity instance is passed in.
         // In that case, TEntity needs to be constrained to have Id property.
 
-        // TODO: May want to shift Id to Keys[] to support more diverse entities.
+        // TODO: May want to shift Id to Keys[] to support more diverse entities.        
     }
 }

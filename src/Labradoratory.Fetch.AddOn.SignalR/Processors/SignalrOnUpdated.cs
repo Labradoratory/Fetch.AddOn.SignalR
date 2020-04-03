@@ -20,16 +20,21 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
     {
         private readonly string _name;
         private readonly IHubContext<THub> _hubContext;
+        private readonly ISignalrGroupNameTransformer _groupNameTransformer;
         private readonly ISignalrUpdateDataTransformer<TEntity> _dataTransformer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignalrOnUpdated{TEntity, THub}"/> class.
         /// </summary>
         /// <param name="hubContext">The hub context.</param>
+        /// <param name="groupNameTransformer">[Optional] A transformer to apply to the group name.</param>
         /// <param name="dataTransformer">A data transformer to apply before sending the updated notification.</param>
         /// <remarks>The <typeparamref name="TEntity"/> name will be used in notifications.</remarks>
-        public SignalrOnUpdated(IHubContext<THub> hubContext, ISignalrUpdateDataTransformer<TEntity> dataTransformer = null)
-            : this(typeof(TEntity).Name, hubContext, dataTransformer)
+        public SignalrOnUpdated(
+            IHubContext<THub> hubContext,
+            ISignalrGroupNameTransformer groupNameTransformer = null,
+            ISignalrUpdateDataTransformer<TEntity> dataTransformer = null)
+            : this(typeof(TEntity).Name, hubContext, groupNameTransformer, dataTransformer)
         { }
 
         /// <summary>
@@ -37,11 +42,17 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         /// </summary>
         /// <param name="name">The name to use to identify the type in notifications.</param>
         /// <param name="hubContext">The hub context.</param>
+        /// <param name="groupNameTransformer">[Optional] A transformer to apply to the group name.</param>
         /// <param name="dataTransformer">A data transformer to apply before sending the updated notification.</param>
-        public SignalrOnUpdated(string name, IHubContext<THub> hubContext, ISignalrUpdateDataTransformer<TEntity> dataTransformer = null)
+        public SignalrOnUpdated(
+            string name,
+            IHubContext<THub> hubContext,
+            ISignalrGroupNameTransformer groupNameTransformer = null,
+            ISignalrUpdateDataTransformer<TEntity> dataTransformer = null)
         {
             _name = name;
             _hubContext = hubContext;
+            _groupNameTransformer = groupNameTransformer;
             _dataTransformer = dataTransformer;
         }
 
@@ -52,7 +63,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         public Task ProcessAsync(EntityUpdatedPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
             var patch = _dataTransformer?.Transform(package) ?? package.Changes.ToJsonPatch();
-            return _hubContext.UpdateAsync(_name, package.Entity.EncodeKeys(), patch, cancellationToken);
+            return _hubContext.UpdateAsync(_name, package.Entity.EncodeKeys(), patch, _groupNameTransformer, cancellationToken);
         }
     }
 }

@@ -4,6 +4,7 @@ using Labradoratory.Fetch.AddOn.SignalR.Hubs;
 using Labradoratory.Fetch.AddOn.SignalR.Processors;
 using Labradoratory.Fetch.Processors;
 using Labradoratory.Fetch.Processors.DataPackages;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
@@ -18,6 +19,11 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
             var subjectMock = new Mock<IServiceCollection>(MockBehavior.Strict);
             subjectMock.Setup(sc => sc.Add(It.IsAny<ServiceDescriptor>()));
 
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock
+                .Setup(sp => sp.GetService(It.Is<Type>(t => t == typeof(IHubContext<TestHub>))))
+                .Returns(Mock.Of<IHubContext<TestHub>>());
+
             var subject = subjectMock.Object;
             var result = subject.AddFetchSignalrProcessor<TestEntity, TestHub>();
 
@@ -27,19 +33,19 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
                 It.Is<ServiceDescriptor>(v =>
                     v.ServiceType == typeof(IProcessor<EntityAddedPackage<TestEntity>>)
                     && v.ImplementationFactory != null
-                    && v.ImplementationFactory(Mock.Of<IServiceProvider>()) is SignalrOnAdded<TestEntity, TestHub>)),
+                    && v.ImplementationFactory(serviceProviderMock.Object) is SignalrOnAdded<TestEntity, TestHub>)),
                 Times.Once);
 
             subjectMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v => v.ServiceType == typeof(IProcessor<EntityDeletedPackage<TestEntity>>)
                     && v.ImplementationFactory != null
-                    && v.ImplementationFactory(Mock.Of<IServiceProvider>()) is SignalrOnDeleted<TestEntity, TestHub>)),
+                    && v.ImplementationFactory(serviceProviderMock.Object) is SignalrOnDeleted<TestEntity, TestHub>)),
                 Times.Once);
 
             subjectMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v => v.ServiceType == typeof(IProcessor<EntityUpdatedPackage<TestEntity>>)
                     && v.ImplementationFactory != null
-                    && v.ImplementationFactory(Mock.Of<IServiceProvider>()) is SignalrOnUpdated<TestEntity, TestHub>)),
+                    && v.ImplementationFactory(serviceProviderMock.Object) is SignalrOnUpdated<TestEntity, TestHub>)),
                 Times.Once);
         }
 
@@ -48,6 +54,11 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
         {
             var subjectMock = new Mock<IServiceCollection>(MockBehavior.Strict);
             subjectMock.Setup(sc => sc.Add(It.IsAny<ServiceDescriptor>()));
+
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock
+                .Setup(sp => sp.GetService(It.Is<Type>(t => t == typeof(IHubContext<TestHub>))))
+                .Returns(Mock.Of<IHubContext<TestHub>>());
 
             var subject = subjectMock.Object;
             var result = subject.AddFetchSignalrProcessor<TestEntity, TestHub>(SignalrProcessActions.Add);
@@ -58,7 +69,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
                 It.Is<ServiceDescriptor>(v => 
                     v.ServiceType == typeof(IProcessor<EntityAddedPackage<TestEntity>>)
                     && v.ImplementationFactory != null
-                    && v.ImplementationFactory(Mock.Of<IServiceProvider>()) is SignalrOnAdded<TestEntity, TestHub>)),
+                    && v.ImplementationFactory(serviceProviderMock.Object) is SignalrOnAdded<TestEntity, TestHub>)),
                 Times.Once);
 
             subjectMock.Verify(sc => sc.Add(
@@ -76,6 +87,11 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
             var subjectMock = new Mock<IServiceCollection>(MockBehavior.Strict);
             subjectMock.Setup(sc => sc.Add(It.IsAny<ServiceDescriptor>()));
 
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock
+                .Setup(sp => sp.GetService(It.Is<Type>(t => t == typeof(IHubContext<TestHub>))))
+                .Returns(Mock.Of<IHubContext<TestHub>>());                
+
             var subject = subjectMock.Object;
             var result = subject.AddFetchSignalrProcessor<TestEntity, TestHub>(SignalrProcessActions.Delete);
 
@@ -88,7 +104,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
             subjectMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v => v.ServiceType == typeof(IProcessor<EntityDeletedPackage<TestEntity>>)
                     && v.ImplementationFactory != null
-                    && v.ImplementationFactory(Mock.Of<IServiceProvider>()) is SignalrOnDeleted<TestEntity, TestHub>)),
+                    && v.ImplementationFactory(serviceProviderMock.Object) is SignalrOnDeleted<TestEntity, TestHub>)),
                 Times.Once);
 
             subjectMock.Verify(sc => sc.Add(
@@ -101,6 +117,11 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
         {
             var subjectMock = new Mock<IServiceCollection>(MockBehavior.Strict);
             subjectMock.Setup(sc => sc.Add(It.IsAny<ServiceDescriptor>()));
+
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock
+                .Setup(sp => sp.GetService(It.Is<Type>(t => t == typeof(IHubContext<TestHub>))))
+                .Returns(Mock.Of<IHubContext<TestHub>>());
 
             var subject = subjectMock.Object;
             var result = subject.AddFetchSignalrProcessor<TestEntity, TestHub>(SignalrProcessActions.Update);
@@ -118,7 +139,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
             subjectMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v => v.ServiceType == typeof(IProcessor<EntityUpdatedPackage<TestEntity>>)
                     && v.ImplementationFactory != null
-                    && v.ImplementationFactory(Mock.Of<IServiceProvider>()) is SignalrOnUpdated<TestEntity, TestHub>)),
+                    && v.ImplementationFactory(serviceProviderMock.Object) is SignalrOnUpdated<TestEntity, TestHub>)),
                 Times.Once);
         }
 

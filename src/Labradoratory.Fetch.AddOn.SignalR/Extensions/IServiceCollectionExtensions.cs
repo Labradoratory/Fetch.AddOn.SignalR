@@ -41,7 +41,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Extensions
         /// <param name="actions">The actions to notify on.</param>
         /// <returns></returns>
         public static IServiceCollection AddFetchSignalrProcessor<TEntity, THub>(
-            this IServiceCollection serviceCollection, 
+            this IServiceCollection serviceCollection,
             string notificationName, 
             SignalrProcessActions actions = SignalrProcessActions.All)
             where TEntity : Entity
@@ -49,15 +49,15 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Extensions
         {
             if (actions.HasFlag(SignalrProcessActions.Add))
                 serviceCollection.AddTransient<IProcessor<EntityAddedPackage<TEntity>>>(
-                    sp => new SignalrOnAdded<TEntity, THub>(notificationName, sp.GetService<IHubContext<THub>>(), sp.GetService<ISignalrAddDataTransformer<TEntity>>()));
+                    sp => new SignalrOnAdded<TEntity, THub>(notificationName, sp.GetRequiredService<IHubContext<THub>>(), sp.GetService<ISignalrGroupNameTransformer>(), sp.GetService<ISignalrAddDataTransformer<TEntity>>()));
 
             if (actions.HasFlag(SignalrProcessActions.Delete))
                 serviceCollection.AddTransient<IProcessor<EntityDeletedPackage<TEntity>>>(
-                    sp => new SignalrOnDeleted<TEntity, THub>(notificationName, sp.GetService<IHubContext<THub>>()));
+                    sp => new SignalrOnDeleted<TEntity, THub>(notificationName, sp.GetRequiredService<IHubContext<THub>>(), sp.GetService<ISignalrGroupNameTransformer>()));
 
             if (actions.HasFlag(SignalrProcessActions.Update))
                 serviceCollection.AddTransient<IProcessor<EntityUpdatedPackage<TEntity>>>(
-                    sp => new SignalrOnUpdated<TEntity, THub>(notificationName, sp.GetService<IHubContext<THub>>(), sp.GetService<ISignalrUpdateDataTransformer<TEntity>>()));
+                    sp => new SignalrOnUpdated<TEntity, THub>(notificationName, sp.GetRequiredService<IHubContext<THub>>(), sp.GetService<ISignalrGroupNameTransformer>(), sp.GetService<ISignalrUpdateDataTransformer<TEntity>>()));
 
             return serviceCollection;
         }

@@ -19,13 +19,17 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
     {
         private readonly string _name;
         private readonly IHubContext<THub> _hubContext;
+        private readonly ISignalrGroupNameTransformer _groupNameTransformer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignalrOnDeleted{TEntity, THub}"/> class.
         /// </summary>
         /// <param name="hubContext">The hub context.</param>
-        public SignalrOnDeleted(IHubContext<THub> hubContext)
-            : this(typeof(TEntity).Name, hubContext)
+        /// <param name="groupNameTransformer">[Optional] A transformer to apply to the group name.</param>
+        public SignalrOnDeleted(
+            IHubContext<THub> hubContext,
+            ISignalrGroupNameTransformer groupNameTransformer = null)
+            : this(typeof(TEntity).Name, hubContext, groupNameTransformer)
         {
         }
 
@@ -34,10 +38,15 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         /// </summary>
         /// <param name="name">The name to use to identify the type in notifications.</param>
         /// <param name="hubContext">The hub context.</param>
-        public SignalrOnDeleted(string name, IHubContext<THub> hubContext)
+        /// <param name="groupNameTransformer">[Optional] A transformer to apply to the group name.</param>
+        public SignalrOnDeleted(
+            string name,
+            IHubContext<THub> hubContext,
+            ISignalrGroupNameTransformer groupNameTransformer = null)
         {
             _name = name;
             _hubContext = hubContext;
+            _groupNameTransformer = groupNameTransformer;
         }
 
         /// <inheritdoc />
@@ -46,7 +55,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         /// <inheritdoc />
         public Task ProcessAsync(EntityDeletedPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
-            return _hubContext.DeleteAsync(_name, package.Entity.EncodeKeys(), cancellationToken);
+            return _hubContext.DeleteAsync(_name, package.Entity.EncodeKeys(), _groupNameTransformer, cancellationToken);
         }
     }
 }
