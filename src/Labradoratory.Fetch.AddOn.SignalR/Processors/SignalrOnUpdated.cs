@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Labradoratory.Fetch.AddOn.SignalR.Hubs;
 using Labradoratory.Fetch.Extensions;
@@ -63,6 +64,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         public async Task ProcessAsync(EntityUpdatedPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
             var patch = await _dataTransformer?.TransformAsync(package) ?? package.Changes.ToJsonPatch();
+            if (patch == null || patch.Length == 0)
+                return;
+
             await _hubContext.UpdateAsync(_name, package.Entity.EncodeKeys(), patch, _groupNameTransformer, cancellationToken);
         }
     }
