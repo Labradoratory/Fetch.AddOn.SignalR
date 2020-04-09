@@ -70,7 +70,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
 
             // TODO: Include tenant info in group.
 
-            await GetGroups().AddToGroupAsync(Context.ConnectionId, _groupNameTransformer.TransformIfPossible(path));
+            await GetGroups().AddToGroupAsync(Context.ConnectionId, await _groupNameTransformer.TransformIfPossibleAsync(path));
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
         {
             // TODO: Include tenant info in group.
             var entityName = type.ToLower();
-            await context.Clients.Group(groupTransformer.TransformIfPossible(entityName)).SendAsync($"{entityName}/add", data, cancellationToken);
+            await context.Clients.Group(await groupTransformer.TransformIfPossibleAsync(entityName)).SendAsync($"{entityName}/add", data, cancellationToken);
         }
 
         /// <summary>
@@ -153,16 +153,16 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
         /// <param name="groupNameFormatter">[Optional] A function that can alter the group name.</param>
         /// <param name="cancellationToken">[Optional] The token to monitor for cancellation requests.</param>
         /// <returns>The task.</returns>
-        public static Task UpdateAsync<THub>(this IHubContext<THub> context, string type, string id, Operation[] patch, ISignalrGroupNameTransformer groupTransformer = null, CancellationToken cancellationToken = default)
+        public static async Task UpdateAsync<THub>(this IHubContext<THub> context, string type, string id, Operation[] patch, ISignalrGroupNameTransformer groupTransformer = null, CancellationToken cancellationToken = default)
             where THub : Hub, IEntityHub
         {
             // TODO: Include tenant info in group.
             var entityName = type.ToLower();
             // Send to both the type group and the specific instance group.
             // Use Task.WhenAll to allow the sends to run simultaniously if possible.
-            return Task.WhenAll(
-                context.Clients.Group(groupTransformer.TransformIfPossible(entityName)).SendAsync($"{entityName}/update", id, patch, cancellationToken),
-                context.Clients.Group(groupTransformer.TransformIfPossible($"{entityName}/{id}")).SendAsync($"{entityName}/update", id, patch, cancellationToken));
+            await Task.WhenAll(
+                context.Clients.Group(await groupTransformer.TransformIfPossibleAsync(entityName)).SendAsync($"{entityName}/update", id, patch, cancellationToken),
+                context.Clients.Group(await groupTransformer.TransformIfPossibleAsync($"{entityName}/{id}")).SendAsync($"{entityName}/update", id, patch, cancellationToken));
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
         {
             // TODO: Include tenant info in group.
             var entityName = type.ToLower();
-            await context.Clients.Group(groupTransformer.TransformIfPossible(entityName)).SendAsync($"{entityName}/delete", id, cancellationToken);
+            await context.Clients.Group(await groupTransformer.TransformIfPossibleAsync(entityName)).SendAsync($"{entityName}/delete", id, cancellationToken);
         }
 
         // TODO: May want to add update and delete versions where the TEntity instance is passed in.

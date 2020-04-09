@@ -60,10 +60,10 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         public uint Priority => 0;
 
         /// <inheritdoc />
-        public Task ProcessAsync(EntityUpdatedPackage<TEntity> package, CancellationToken cancellationToken = default)
+        public async Task ProcessAsync(EntityUpdatedPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
-            var patch = _dataTransformer?.Transform(package) ?? package.Changes.ToJsonPatch();
-            return _hubContext.UpdateAsync(_name, package.Entity.EncodeKeys(), patch, _groupNameTransformer, cancellationToken);
+            var patch = await _dataTransformer?.TransformAsync(package) ?? package.Changes.ToJsonPatch();
+            await _hubContext.UpdateAsync(_name, package.Entity.EncodeKeys(), patch, _groupNameTransformer, cancellationToken);
         }
     }
 }

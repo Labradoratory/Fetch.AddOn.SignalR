@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Labradoratory.Fetch.AddOn.SignalR
 {
@@ -11,8 +12,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR
         /// Transforms the specified group name.
         /// </summary>
         /// <param name="groupName">Name of the group.</param>
+        /// <param name="cancellationToken">[Optional] The token to monitor for cancellation requests.</param>
         /// <returns>The transformed group name.</returns>
-        string Transform(string groupName);
+        Task<string> TransformAsync(string groupName, CancellationToken cancellationToken = default);
     }
 
     public static class ISignalrGroupNameTransformerExtensions
@@ -22,10 +24,11 @@ namespace Labradoratory.Fetch.AddOn.SignalR
         /// </summary>
         /// <param name="transformer">The transformer.</param>
         /// <param name="value">The value.</param>
+        /// <param name="cancellationToken">[Optional] The token to monitor for cancellation requests.</param>
         /// <returns>The transformed value or the original value if the <see cref="ISignalrGroupNameTransformer"/> is null.</returns>
-        public static string TransformIfPossible(this ISignalrGroupNameTransformer transformer, string value)
+        public static Task<string> TransformIfPossibleAsync(this ISignalrGroupNameTransformer transformer, string value, CancellationToken cancellationToken = default)
         {
-            return transformer?.Transform(value) ?? value;
+            return transformer?.TransformAsync(value) ?? Task.FromResult(value);
         }
     }
 }

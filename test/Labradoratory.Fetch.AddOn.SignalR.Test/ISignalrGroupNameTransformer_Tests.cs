@@ -1,4 +1,6 @@
-﻿using Moq;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Moq;
 using Xunit;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Test
@@ -6,7 +8,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test
     public class ISignalrGroupNameTransformer_Tests
     {
         [Fact]
-        public void TransformIfPossible_TransformsValueWhenNotNull()
+        public async Task TransformIfPossible_TransformsValueWhenNotNull()
         {
             var originalValue = "MyValue";
             var modification = "Changed";
@@ -14,21 +16,21 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test
 
             var subjectMock = new Mock<ISignalrGroupNameTransformer>(MockBehavior.Strict);
             subjectMock
-                .Setup(t => t.Transform(It.IsAny<string>()))
-                .Returns<string>(v => v + modification);
+                .Setup(t => t.TransformAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync<string, CancellationToken, ISignalrGroupNameTransformer, string>((v, token) => v + modification);
 
-            var result = subjectMock.Object.Transform(originalValue);
+            var result = await subjectMock.Object.TransformAsync(originalValue);
             Assert.Equal(expectedValue, result);
         }
 
         [Fact]
-        public void TransformIfPossible_OriginalValueWhenNull()
+        public async Task TransformIfPossible_OriginalValueWhenNull()
         {
             var originalValue = "MyValue";
             var expectedValue = originalValue;
 
-            var result = ((ISignalrGroupNameTransformer)null).TransformIfPossible(originalValue);
-            Assert.Equal(expectedValue, originalValue);
+            var result = await ((ISignalrGroupNameTransformer)null).TransformIfPossibleAsync(originalValue);
+            Assert.Equal(expectedValue, result);
         }
     }
 }

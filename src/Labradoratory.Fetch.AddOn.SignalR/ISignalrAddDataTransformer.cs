@@ -1,4 +1,6 @@
-﻿using Labradoratory.Fetch.Processors.DataPackages;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Labradoratory.Fetch.Processors.DataPackages;
 
 namespace Labradoratory.Fetch.AddOn.SignalR
 {
@@ -14,7 +16,8 @@ namespace Labradoratory.Fetch.AddOn.SignalR
         /// a SignalR entity added notification.
         /// </summary>
         /// <param name="package">The package containing the data to transform.</param>
+        /// <param name="cancellationToken">[Optional] The token to monitor for cancellation requests.</param>
         /// <returns>The data that should be sent with a SignalR entity added notification.</returns>
-        object Transform(EntityAddedPackage<TEntity> package);
+        Task<object> TransformAsync(EntityAddedPackage<TEntity> package, CancellationToken cancellationToken = default);
     }
 }

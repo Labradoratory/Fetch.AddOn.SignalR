@@ -35,8 +35,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
             ISignalrGroupNameTransformer groupNameTransformer = null,
             ISignalrAddDataTransformer<TEntity> dataTransformer = null)
             : this(typeof(TEntity).Name, hubContext, groupNameTransformer, dataTransformer)
-        {
-        }
+        {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignalrOnUpdated{TEntity, THub}"/> class.
@@ -59,11 +58,13 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
 
         public uint Priority => 0;
 
-        public Task ProcessAsync(EntityAddedPackage<TEntity> package, CancellationToken cancellationToken = default)
+        public async Task ProcessAsync(EntityAddedPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
-            var data = _dataTransformer?.Transform(package) ?? package.Entity;
+            var data = await _dataTransformer?.TransformAsync(package) ?? package.Entity;
+            if (data == null)
+                return;
 
-            return _hubContext.AddAsync(_name, data, _groupNameTransformer, cancellationToken);
+            await _hubContext.AddAsync(_name, data, _groupNameTransformer, cancellationToken);
         }
     }
 }
