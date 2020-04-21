@@ -5,6 +5,7 @@ using Labradoratory.Fetch.AddOn.SignalR.Hubs;
 using Labradoratory.Fetch.Extensions;
 using Labradoratory.Fetch.Processors;
 using Labradoratory.Fetch.Processors.DataPackages;
+using Microsoft.AspNetCore.JsonPatch.Operations;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Processors
@@ -63,11 +64,20 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         /// <inheritdoc />
         public async Task ProcessAsync(EntityUpdatedPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
-            var patch = await _dataTransformer?.TransformAsync(package) ?? package.Changes.ToJsonPatch();
+            var patch = await GetPatchAsync(package, cancellationToken);
+            // If the patch is null or empty, there's no need to send the update.
             if (patch == null || patch.Length == 0)
                 return;
 
             await _hubContext.UpdateAsync(_name, package.Entity.EncodeKeys(), patch, _groupNameTransformer, cancellationToken);
+        }
+
+        private Task<Operation[]> GetPatchAsync(EntityUpdatedPackage<TEntity> package, CancellationToken cancellationToken)
+        {
+            if (_dataTransformer != null)
+                return _dataTransformer.TransformAsync(package, cancellationToken);
+
+            return Task.FromResult(package.Changes.ToJsonPatch());
         }
     }
 }
