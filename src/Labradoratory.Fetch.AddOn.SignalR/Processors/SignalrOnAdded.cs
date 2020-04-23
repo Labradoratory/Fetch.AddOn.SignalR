@@ -60,11 +60,19 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
 
         public async Task ProcessAsync(EntityAddedPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
-            var data = await _dataTransformer?.TransformAsync(package) ?? package.Entity;
+            var data = await GetDataAsync(package, cancellationToken);
             if (data == null)
                 return;
 
             await _hubContext.AddAsync(_name, data, _groupNameTransformer, cancellationToken);
+        }
+
+        private Task<object> GetDataAsync(EntityAddedPackage<TEntity> package, CancellationToken cancellationToken)
+        {
+            if (_dataTransformer != null)
+                return _dataTransformer.TransformAsync(package, cancellationToken);
+
+            return Task.FromResult<object>(package.Entity);
         }
     }
 }
