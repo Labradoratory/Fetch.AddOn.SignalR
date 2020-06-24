@@ -19,13 +19,10 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <typeparam name="THub">The type of the hub.</typeparam>
     /// <seealso cref="Labradoratory.Fetch.Processors.EntityAddedProcessor{TEntity}" />
-    public class SignalrOnAdded<TEntity, THub> : IProcessor<EntityAddedPackage<TEntity>>
+    public class SignalrOnAdded<TEntity, THub> : SignalrNotificationProcessorBase<TEntity, THub, EntityAddedPackage<TEntity>>
         where TEntity : Entity
         where THub : Hub, IEntityHub
     {
-        private readonly IHubContext<THub> _hubContext;
-        private readonly IEnumerable<ISignalrGroupSelector<TEntity>> _groupSelectors;
-        private readonly ISignalrGroupNameTransformer _groupNameTransformer;
         private readonly ISignalrAddDataTransformer<TEntity> _dataTransformer;
 
         /// <summary>
@@ -40,34 +37,14 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
             IEnumerable<ISignalrGroupSelector<TEntity>> groupSelectors,
             ISignalrGroupNameTransformer groupNameTransformer = null,
             ISignalrAddDataTransformer<TEntity> dataTransformer = null)
+            : base(hubContext, groupSelectors, groupNameTransformer)
         {
-            _hubContext = hubContext;
-            _groupSelectors = groupSelectors;
-            _groupNameTransformer = groupNameTransformer;
             _dataTransformer = dataTransformer;
         }
 
-        public uint Priority => 0;
+        protected override string Action => "add";
 
-        public async Task ProcessAsync(EntityAddedPackage<TEntity> package, CancellationToken cancellationToken = default)
-        {
-            var data = await GetDataAsync(package, cancellationToken);
-            if (data == null)
-                return;
-
-            // NOTE: We could make this run in parallel, but there may be situations where an user
-            // may not want that to happen.  We'd probably need a flag to turn off parallel or something.
-            // Right now it just isn't worth doing.
-            foreach(var selector in _groupSelectors)
-            {
-                foreach(var group in await selector.GetGroupAsync(package, cancellationToken))
-                {
-                    await _hubContext.AddAsync(group, data, _groupNameTransformer, cancellationToken);
-                }
-            }
-        }
-
-        private Task<object> GetDataAsync(EntityAddedPackage<TEntity> package, CancellationToken cancellationToken)
+        protected override Task<object> GetDataAsync(EntityAddedPackage<TEntity> package, CancellationToken cancellationToken)
         {
             if (_dataTransformer != null)
                 return _dataTransformer.TransformAsync(package, cancellationToken);

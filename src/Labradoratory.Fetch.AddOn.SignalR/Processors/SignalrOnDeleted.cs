@@ -15,14 +15,10 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <typeparam name="THub">The type of the hub.</typeparam>
     /// <seealso cref="Labradoratory.Fetch.Processors.EntityDeletedProcessor{TEntity}" />
-    public class SignalrOnDeleted<TEntity, THub> : IProcessor<EntityDeletedPackage<TEntity>>
+    public class SignalrOnDeleted<TEntity, THub> : SignalrNotificationProcessorBase<TEntity, THub, EntityDeletedPackage<TEntity>>
         where TEntity : Entity
         where THub : Hub, IEntityHub
-    {
-        private readonly IHubContext<THub> _hubContext;
-        private readonly IEnumerable<ISignalrGroupSelector<TEntity>> _groupSelectors;
-        private readonly ISignalrGroupNameTransformer _groupNameTransformer;
-
+    { 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignalrOnUpdated{TEntity, THub}"/> class.
         /// </summary>
@@ -33,28 +29,14 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
             IHubContext<THub> hubContext,
             IEnumerable<ISignalrGroupSelector<TEntity>> groupSelectors,
             ISignalrGroupNameTransformer groupNameTransformer = null)
-        {
-            _hubContext = hubContext;
-            _groupSelectors = groupSelectors;
-            _groupNameTransformer = groupNameTransformer;
-        }
+            : base(hubContext, groupSelectors, groupNameTransformer)
+        { }
 
-        /// <inheritdoc />
-        public uint Priority => 0;
+        protected override string Action => "delete";
 
-        /// <inheritdoc />
-        public async Task ProcessAsync(EntityDeletedPackage<TEntity> package, CancellationToken cancellationToken = default)
+        protected override Task<object> GetDataAsync(EntityDeletedPackage<TEntity> package, CancellationToken cancellationToken)
         {
-            // NOTE: We could make this run in parallel, but there may be situations where an user
-            // may not want that to happen.  We'd probably need a flag to turn off parallel or something.
-            // Right now it just isn't worth doing.
-            foreach (var selector in _groupSelectors)
-            {
-                foreach (var group in await selector.GetGroupAsync(package, cancellationToken))
-                {
-                    await _hubContext.DeleteAsync(group, package.Entity.EncodeKeys(), _groupNameTransformer, cancellationToken);
-                }
-            }
+            return Task.FromResult<object>(package.Entity.EncodeKeys());
         }
     }
 }

@@ -91,7 +91,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             var mockSelectors = new[] { mockSelector1.Object };
 
             var mockNameTransformer = new Mock<ISignalrGroupNameTransformer>(MockBehavior.Strict);
-            mockNameTransformer.Setup(t => t.TransformAsync(It.Is<string>(v => v == expectedGroup1.ToLower()), It.IsAny<CancellationToken>())).ReturnsAsync(expectedTransformedGroup);
+            mockNameTransformer.Setup(t => t.TransformAsync(It.Is<string>(v => v == expectedGroup1), It.IsAny<CancellationToken>())).ReturnsAsync(expectedTransformedGroup);
 
             var subject = new SignalrOnDeleted<TestEntity, TestHub>(mockContext.Object, mockSelectors, groupNameTransformer: mockNameTransformer.Object);
             await subject.ProcessAsync(new EntityDeletedPackage<TestEntity>(expectedEntity), expectedToken);

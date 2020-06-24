@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.JsonPatch.Operations;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
@@ -74,61 +72,5 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
     {
         Task SubscribeEntity(string path);
         Task UnsubscribeEntity(string path);
-    }
-
-    /// <summary>
-    /// Methods to make working with IHubContext a little easier.
-    /// </summary>
-    public static class IHubContextExtensions
-    {
-        /// <summary>
-        /// Sends an entity added notification to the appropriate groups for the provided <typeparamref name="T"/>.
-        /// </summary>
-        /// <typeparam name="THub">The type of the Hub used for notifications.  Must be a type of <see cref="EntityHub"/>.</typeparam>
-        /// <param name="context">The context to use to send notifications.</param>
-        /// <param name="group">The name of the group to send notification to.  This is case insensitive.</param>
-        /// <param name="data">The data to send the add notification for.</param>
-        /// <param name="groupNameTransformer">[Optional] A transform that can alter the group name.</param>
-        /// <param name="cancellationToken">[Optional] The token to monitor for cancellation requests.</param>
-        /// <returns>The task.</returns>
-        public static async Task AddAsync<THub>(this IHubContext<THub> context, string group, object data, ISignalrGroupNameTransformer groupTransformer = null, CancellationToken cancellationToken = default)
-            where THub : Hub, IEntityHub
-        {
-            group = group.ToLower();
-            await context.Clients.Group(await groupTransformer.TransformIfPossibleAsync(group)).SendAsync($"{group}/add", data, cancellationToken);
-        }
-
-        /// <summary>
-        /// Sends an entity updated notification to the appropriate groups for the provided <typeparamref name="T"/>.
-        /// </summary>
-        /// <typeparam name="THub">The type of the Hub used for notifications.  Must be a type of <see cref="EntityHub"/>.</typeparam>
-        /// <param name="context">The context to use to send notifications.</param>
-        /// <param name="group">The name of the group to send notifications to.  This is case insensitive.</param>
-        /// <param name="encodedKeys">The <see cref="Entity.EncodeKeys"/> of the entity to notify about.</param>
-        /// <param name="patch">The patch included in the update.</param>
-        /// <param name="cancellationToken">[Optional] The token to monitor for cancellation requests.</param>
-        /// <returns>The task.</returns>
-        public static async Task UpdateAsync<THub>(this IHubContext<THub> context, string group, string encodedKeys, Operation[] patch, ISignalrGroupNameTransformer groupTransformer = null, CancellationToken cancellationToken = default)
-            where THub : Hub, IEntityHub
-        {
-            group = group.ToLower();
-            await context.Clients.Group(await groupTransformer.TransformIfPossibleAsync(group)).SendAsync($"{group}/update", encodedKeys, patch, cancellationToken);
-        }
-
-        /// <summary>
-        /// Sends an entity deleted notification to the appropriate groups for the provided <typeparamref name="T"/>.
-        /// </summary>
-        /// <typeparam name="THub">The type of the Hub used for notifications.  Must be a type of <see cref="EntityHub"/>.</typeparam>
-        /// <param name="context">The context to use to send notifications.</param>
-        /// <param name="group">The name of the group to send notifications to.  This is case insensitive.</param>
-        /// <param name="encodedKeys">The <see cref="Entity.EncodeKeys"/> of the entity to notify about.</param>
-        /// <param name="cancellationToken">[Optional] The token to monitor for cancellation requests.</param>
-        /// <returns>The task.</returns>
-        public static async Task DeleteAsync<THub>(this IHubContext<THub> context, string group, string encodedKeys, ISignalrGroupNameTransformer groupTransformer = null, CancellationToken cancellationToken = default)
-            where THub : Hub, IEntityHub
-        {
-            group = group.ToLower();
-            await context.Clients.Group(await groupTransformer.TransformIfPossibleAsync(group)).SendAsync($"{group}/delete", encodedKeys, cancellationToken);
-        }
     }
 }
