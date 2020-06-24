@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Labradoratory.Fetch.AddOn.SignalR.Data;
+using Labradoratory.Fetch.AddOn.SignalR.Groups;
 using Labradoratory.Fetch.AddOn.SignalR.Hubs;
 using Labradoratory.Fetch.Extensions;
 using Labradoratory.Fetch.Processors;
@@ -20,8 +22,8 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         where TEntity : Entity
         where THub : Hub, IEntityHub
     {
-        private readonly string _name;
         private readonly IHubContext<THub> _hubContext;
+        private readonly IEnumerable<ISignalrGroupSelector<TEntity>> _groupSelectors;
         private readonly ISignalrGroupNameTransformer _groupNameTransformer;
         private readonly ISignalrUpdateDataTransformer<TEntity> _dataTransformer;
 
@@ -29,31 +31,16 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         /// Initializes a new instance of the <see cref="SignalrOnUpdated{TEntity, THub}"/> class.
         /// </summary>
         /// <param name="hubContext">The hub context.</param>
-        /// <param name="groupNameTransformer">[Optional] A transformer to apply to the group name.</param>
-        /// <param name="dataTransformer">A data transformer to apply before sending the updated notification.</param>
-        /// <remarks>The <typeparamref name="TEntity"/> name will be used in notifications.</remarks>
+        /// <param name="groupSelectors">A collection of selctors that will be used to determine the groups to send notifications to.</param>
+        /// <param name="dataTransformer">A data transformer to apply before sending the added notification.</param>
         public SignalrOnUpdated(
             IHubContext<THub> hubContext,
-            ISignalrGroupNameTransformer groupNameTransformer = null,
-            ISignalrUpdateDataTransformer<TEntity> dataTransformer = null)
-            : this(typeof(TEntity).Name, hubContext, groupNameTransformer, dataTransformer)
-        { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SignalrOnUpdated{TEntity, THub}"/> class.
-        /// </summary>
-        /// <param name="name">The name to use to identify the type in notifications.</param>
-        /// <param name="hubContext">The hub context.</param>
-        /// <param name="groupNameTransformer">[Optional] A transformer to apply to the group name.</param>
-        /// <param name="dataTransformer">A data transformer to apply before sending the updated notification.</param>
-        public SignalrOnUpdated(
-            string name,
-            IHubContext<THub> hubContext,
+            IEnumerable<ISignalrGroupSelector<TEntity>> groupSelectors,
             ISignalrGroupNameTransformer groupNameTransformer = null,
             ISignalrUpdateDataTransformer<TEntity> dataTransformer = null)
         {
-            _name = name;
             _hubContext = hubContext;
+            _groupSelectors = groupSelectors;
             _groupNameTransformer = groupNameTransformer;
             _dataTransformer = dataTransformer;
         }
@@ -69,7 +56,16 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
             if (patch == null || patch.Length == 0)
                 return;
 
-            await _hubContext.UpdateAsync(_name, package.Entity.EncodeKeys(), patch, _groupNameTransformer, cancellationToken);
+            // NOTE: We could make this run in parallel, but there may be situations where an user
+            // may not want that to happen.  We'd probably need a flag to turn off parallel or something.
+            // Right now it just isn't worth doing.
+            foreach (var selector in _groupSelectors)
+            {
+                foreach (var group in await selector.GetGroupAsync(package, cancellationToken))
+                {
+                    await _hubContext.UpdateAsync(group, package.Entity.EncodeKeys(), patch, _groupNameTransformer, cancellationToken);
+                }
+            }
         }
 
         private Task<Operation[]> GetPatchAsync(EntityUpdatedPackage<TEntity> package, CancellationToken cancellationToken)

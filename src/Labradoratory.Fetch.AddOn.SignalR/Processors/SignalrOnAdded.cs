@@ -1,5 +1,9 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Labradoratory.Fetch.AddOn.SignalR.Data;
+using Labradoratory.Fetch.AddOn.SignalR.Groups;
 using Labradoratory.Fetch.AddOn.SignalR.Hubs;
 using Labradoratory.Fetch.Processors;
 using Labradoratory.Fetch.Processors.DataPackages;
@@ -19,39 +23,26 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         where TEntity : Entity
         where THub : Hub, IEntityHub
     {
-        private readonly string _name;
         private readonly IHubContext<THub> _hubContext;
+        private readonly IEnumerable<ISignalrGroupSelector<TEntity>> _groupSelectors;
         private readonly ISignalrGroupNameTransformer _groupNameTransformer;
         private readonly ISignalrAddDataTransformer<TEntity> _dataTransformer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SignalrOnAdded{TEntity, THub}"/> class.
-        /// </summary>
-        /// <param name="hubContext">The hub context.</param>
-        /// <param name="groupNameTransformer">[Optional] A transformer to apply to the group name.</param>
-        /// <param name="dataTransformer">A data transformer to apply before sending the added notification.</param>
-        public SignalrOnAdded(
-            IHubContext<THub> hubContext,
-            ISignalrGroupNameTransformer groupNameTransformer = null,
-            ISignalrAddDataTransformer<TEntity> dataTransformer = null)
-            : this(typeof(TEntity).Name, hubContext, groupNameTransformer, dataTransformer)
-        {}
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="SignalrOnUpdated{TEntity, THub}"/> class.
         /// </summary>
-        /// <param name="name">The name to use to identify the type in notifications.</param>
         /// <param name="hubContext">The hub context.</param>
+        /// <param name="groupSelectors">A collection of selctors that will be used to determine the groups to send notifications to.</param>
         /// <param name="groupNameTransformer">[Optional] A transformer to apply to the group name.</param>
-        /// <param name="dataTransformer">A data transformer to apply before sending the added notification.</param>
+        /// <param name="dataTransformer">[Optional] A data transformer to apply before sending the added notification.</param>
         public SignalrOnAdded(
-            string name,
             IHubContext<THub> hubContext,
+            IEnumerable<ISignalrGroupSelector<TEntity>> groupSelectors,
             ISignalrGroupNameTransformer groupNameTransformer = null,
             ISignalrAddDataTransformer<TEntity> dataTransformer = null)
         {
-            _name = name;
             _hubContext = hubContext;
+            _groupSelectors = groupSelectors;
             _groupNameTransformer = groupNameTransformer;
             _dataTransformer = dataTransformer;
         }
@@ -64,7 +55,16 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
             if (data == null)
                 return;
 
-            await _hubContext.AddAsync(_name, data, _groupNameTransformer, cancellationToken);
+            // NOTE: We could make this run in parallel, but there may be situations where an user
+            // may not want that to happen.  We'd probably need a flag to turn off parallel or something.
+            // Right now it just isn't worth doing.
+            foreach(var selector in _groupSelectors)
+            {
+                foreach(var group in await selector.GetGroupAsync(package, cancellationToken))
+                {
+                    await _hubContext.AddAsync(group, data, _groupNameTransformer, cancellationToken);
+                }
+            }
         }
 
         private Task<object> GetDataAsync(EntityAddedPackage<TEntity> package, CancellationToken cancellationToken)

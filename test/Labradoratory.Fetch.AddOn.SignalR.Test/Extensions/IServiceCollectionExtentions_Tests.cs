@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Labradoratory.Fetch.AddOn.SignalR.Extensions;
+using Labradoratory.Fetch.AddOn.SignalR.Groups;
 using Labradoratory.Fetch.AddOn.SignalR.Hubs;
 using Labradoratory.Fetch.AddOn.SignalR.Processors;
 using Labradoratory.Fetch.Processors;
@@ -23,6 +25,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
             serviceProviderMock
                 .Setup(sp => sp.GetService(It.Is<Type>(t => t == typeof(IHubContext<TestHub>))))
                 .Returns(Mock.Of<IHubContext<TestHub>>());
+            serviceProviderMock
+                .Setup(sp => sp.GetService(It.Is<Type>(t => t == typeof(IEnumerable<ISignalrGroupSelector<TestEntity>>))))
+                .Returns(new List<ISignalrGroupSelector<TestEntity>> { Mock.Of<ISignalrGroupSelector<TestEntity>>() });
 
             var subject = subjectMock.Object;
             var result = subject.AddFetchSignalrProcessor<TestEntity, TestHub>();
@@ -59,6 +64,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
             serviceProviderMock
                 .Setup(sp => sp.GetService(It.Is<Type>(t => t == typeof(IHubContext<TestHub>))))
                 .Returns(Mock.Of<IHubContext<TestHub>>());
+            serviceProviderMock
+                .Setup(sp => sp.GetService(It.Is<Type>(t => t == typeof(IEnumerable<ISignalrGroupSelector<TestEntity>>))))
+                .Returns(new List<ISignalrGroupSelector<TestEntity>> { Mock.Of<ISignalrGroupSelector<TestEntity>>() });
 
             var subject = subjectMock.Object;
             var result = subject.AddFetchSignalrProcessor<TestEntity, TestHub>(SignalrProcessActions.Add);
@@ -66,7 +74,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
             Assert.Same(subject, result);
 
             subjectMock.Verify(sc => sc.Add(
-                It.Is<ServiceDescriptor>(v => 
+                It.Is<ServiceDescriptor>(v =>
                     v.ServiceType == typeof(IProcessor<EntityAddedPackage<TestEntity>>)
                     && v.ImplementationFactory != null
                     && v.ImplementationFactory(serviceProviderMock.Object) is SignalrOnAdded<TestEntity, TestHub>)),
@@ -90,7 +98,10 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
             var serviceProviderMock = new Mock<IServiceProvider>();
             serviceProviderMock
                 .Setup(sp => sp.GetService(It.Is<Type>(t => t == typeof(IHubContext<TestHub>))))
-                .Returns(Mock.Of<IHubContext<TestHub>>());                
+                .Returns(Mock.Of<IHubContext<TestHub>>());
+            serviceProviderMock
+                .Setup(sp => sp.GetService(It.Is<Type>(t => t == typeof(IEnumerable<ISignalrGroupSelector<TestEntity>>))))
+                .Returns(new List<ISignalrGroupSelector<TestEntity>> { Mock.Of<ISignalrGroupSelector<TestEntity>>() });
 
             var subject = subjectMock.Object;
             var result = subject.AddFetchSignalrProcessor<TestEntity, TestHub>(SignalrProcessActions.Delete);
@@ -122,6 +133,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
             serviceProviderMock
                 .Setup(sp => sp.GetService(It.Is<Type>(t => t == typeof(IHubContext<TestHub>))))
                 .Returns(Mock.Of<IHubContext<TestHub>>());
+            serviceProviderMock
+                .Setup(sp => sp.GetService(It.Is<Type>(t => t == typeof(IEnumerable<ISignalrGroupSelector<TestEntity>>))))
+                .Returns(new List<ISignalrGroupSelector<TestEntity>> { Mock.Of<ISignalrGroupSelector<TestEntity>>() });
 
             var subject = subjectMock.Object;
             var result = subject.AddFetchSignalrProcessor<TestEntity, TestHub>(SignalrProcessActions.Update);
