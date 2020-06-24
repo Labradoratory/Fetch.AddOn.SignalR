@@ -2,25 +2,25 @@
 using System.Linq;
 using System.Threading;
 using Labradoratory.Fetch.AddOn.SignalR.Groups;
+using Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized;
 using Labradoratory.Fetch.Processors.DataPackages;
 using Xunit;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Test.Groups.Specialized
 {
-    public class CustomNameIdGroupSelector_Tests
+    public class EntityKeyGroupSelector_Tests
     {
         [Fact]
         public async void GetGroupAsync_Success()
         {
             var expectedKey = "MyKey9876";
-            var expectedName = "MyGroupName";
 
-            var subject = new CustomNameIdGroupSelector<TestEntity>(expectedName);
+            var subject = new EntityKeyGroupSelector<TestEntity>();
             var package = new EntityAddedPackage<TestEntity>(new TestEntity(expectedKey));
 
             var groups = await subject.GetGroupAsync(package, CancellationToken.None);
             Assert.Single(groups);
-            Assert.Equal($"{expectedName}/{expectedKey}", groups.First());
+            Assert.Equal($"{typeof(TestEntity).Name.ToLower()}/{expectedKey}", groups.First());
         }
 
         public class TestEntity : Entity

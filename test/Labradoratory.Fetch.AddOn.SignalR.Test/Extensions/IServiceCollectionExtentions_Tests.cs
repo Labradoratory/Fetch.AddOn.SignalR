@@ -37,20 +37,17 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
             subjectMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v =>
                     v.ServiceType == typeof(IProcessor<EntityAddedPackage<TestEntity>>)
-                    && v.ImplementationFactory != null
-                    && v.ImplementationFactory(serviceProviderMock.Object) is SignalrOnAdded<TestEntity, TestHub>)),
+                    && v.ImplementationType == typeof(SignalrOnAdded<TestEntity, TestHub>))),
                 Times.Once);
 
             subjectMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v => v.ServiceType == typeof(IProcessor<EntityDeletedPackage<TestEntity>>)
-                    && v.ImplementationFactory != null
-                    && v.ImplementationFactory(serviceProviderMock.Object) is SignalrOnDeleted<TestEntity, TestHub>)),
+                    && v.ImplementationType == typeof(SignalrOnDeleted<TestEntity, TestHub>))),
                 Times.Once);
 
             subjectMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v => v.ServiceType == typeof(IProcessor<EntityUpdatedPackage<TestEntity>>)
-                    && v.ImplementationFactory != null
-                    && v.ImplementationFactory(serviceProviderMock.Object) is SignalrOnUpdated<TestEntity, TestHub>)),
+                    && v.ImplementationType == typeof(SignalrOnUpdated<TestEntity, TestHub>))),
                 Times.Once);
         }
 
@@ -76,8 +73,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
             subjectMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v =>
                     v.ServiceType == typeof(IProcessor<EntityAddedPackage<TestEntity>>)
-                    && v.ImplementationFactory != null
-                    && v.ImplementationFactory(serviceProviderMock.Object) is SignalrOnAdded<TestEntity, TestHub>)),
+                    && v.ImplementationType == typeof(SignalrOnAdded<TestEntity, TestHub>))),
                 Times.Once);
 
             subjectMock.Verify(sc => sc.Add(
@@ -114,8 +110,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
 
             subjectMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v => v.ServiceType == typeof(IProcessor<EntityDeletedPackage<TestEntity>>)
-                    && v.ImplementationFactory != null
-                    && v.ImplementationFactory(serviceProviderMock.Object) is SignalrOnDeleted<TestEntity, TestHub>)),
+                    && v.ImplementationType == typeof(SignalrOnDeleted<TestEntity, TestHub>))),
                 Times.Once);
 
             subjectMock.Verify(sc => sc.Add(
@@ -152,8 +147,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
 
             subjectMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v => v.ServiceType == typeof(IProcessor<EntityUpdatedPackage<TestEntity>>)
-                    && v.ImplementationFactory != null
-                    && v.ImplementationFactory(serviceProviderMock.Object) is SignalrOnUpdated<TestEntity, TestHub>)),
+                    && v.ImplementationType == typeof(SignalrOnUpdated<TestEntity, TestHub>))),
                 Times.Once);
         }
 

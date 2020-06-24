@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Labradoratory.Fetch.Processors.DataPackages;
 
-namespace Labradoratory.Fetch.AddOn.SignalR.Groups
+namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
 {
     /// <summary>
     /// A simple group selector that sends notification to a group for the entity name.

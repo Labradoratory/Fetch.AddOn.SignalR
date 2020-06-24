@@ -1,4 +1,7 @@
-﻿using Labradoratory.Fetch.AddOn.SignalR.Data;
+﻿using System;
+using Labradoratory.Fetch;
+using Labradoratory.Fetch.AddOn.SignalR.Data;
+using Labradoratory.Fetch.AddOn.SignalR.DependencyInjection;
 using Labradoratory.Fetch.AddOn.SignalR.Groups;
 using Labradoratory.Fetch.AddOn.SignalR.Hubs;
 using Labradoratory.Fetch.AddOn.SignalR.Processors;
@@ -31,28 +34,23 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Extensions
             where THub : Hub, IEntityHub
         {
             if (actions.HasFlag(SignalrProcessActions.Add))
-                serviceCollection.AddTransient<IProcessor<EntityAddedPackage<TEntity>>>(
-                    sp => new SignalrOnAdded<TEntity, THub>(
-                        sp.GetRequiredService<IHubContext<THub>>(),
-                        sp.GetServices<ISignalrGroupSelector<TEntity>>(),
-                        sp.GetService<ISignalrGroupNameTransformer>(),
-                        sp.GetService<ISignalrAddDataTransformer<TEntity>>()));
+                serviceCollection.AddTransient<IProcessor<EntityAddedPackage<TEntity>>, SignalrOnAdded<TEntity, THub>>();
 
             if (actions.HasFlag(SignalrProcessActions.Delete))
-                serviceCollection.AddTransient<IProcessor<EntityDeletedPackage<TEntity>>>(
-                    sp => new SignalrOnDeleted<TEntity, THub>(
-                        sp.GetRequiredService<IHubContext<THub>>(),
-                        sp.GetServices<ISignalrGroupSelector<TEntity>>(),
-                        sp.GetService<ISignalrGroupNameTransformer>()));
+                serviceCollection.AddTransient<IProcessor<EntityDeletedPackage<TEntity>>, SignalrOnDeleted<TEntity, THub>>();
 
             if (actions.HasFlag(SignalrProcessActions.Update))
-                serviceCollection.AddTransient<IProcessor<EntityUpdatedPackage<TEntity>>>(
-                    sp => new SignalrOnUpdated<TEntity, THub>(
-                        sp.GetRequiredService<IHubContext<THub>>(),
-                        sp.GetServices<ISignalrGroupSelector<TEntity>>(),
-                        sp.GetService<ISignalrGroupNameTransformer>(),
-                        sp.GetService<ISignalrUpdateDataTransformer<TEntity>>()));
+                serviceCollection.AddTransient<IProcessor<EntityUpdatedPackage<TEntity>>, SignalrOnUpdated<TEntity, THub>>();
 
+            return serviceCollection;
+        }
+
+        public static IServiceCollection AddFetchSignalrGroupSelectors<TEntity>(
+            this IServiceCollection serviceCollection,
+            Action<SignalrGroupSelectorRegistrar<TEntity>> groupRegistrar)
+            where TEntity : Entity
+        {
+            groupRegistrar(new SignalrGroupSelectorRegistrar<TEntity>(serviceCollection));
             return serviceCollection;
         }
     }

@@ -41,21 +41,31 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
 
         public virtual async Task ProcessAsync(TPackage package, CancellationToken cancellationToken = default)
         {
-            var data = await GetDataAsync(package, cancellationToken);
-            if (data == null)
-                return;
-
             // NOTE: We could make this run in parallel, but there may be situations where an user
             // may not want that to happen.  We'd probably need a flag to turn off parallel or something.
             // Right now it just isn't worth doing.
+            var groups = new HashSet<string>();
             foreach (var selector in GroupSelectors)
             {
                 foreach (var group in await selector.GetGroupAsync(package, cancellationToken))
                 {
-                    var action = PrefixActionWithGroup(group);
-                    var transformedGroup = await GroupNameTransformer.TransformIfPossibleAsync(group, cancellationToken);
-                    await SendAsync(transformedGroup.ToLower(), action, data, cancellationToken);
+                    groups.Add(group);
                 }
+            }
+
+            // If there are no groups, no need to continue.
+            if (groups.Count == 0)
+                return;
+
+            var data = await GetDataAsync(package, cancellationToken);
+            if (data == null)
+                return;
+
+            foreach (var group in groups)
+            {
+                var action = PrefixActionWithGroup(group);
+                var transformedGroup = await GroupNameTransformer.TransformIfPossibleAsync(group, cancellationToken);
+                await SendAsync(transformedGroup.ToLower(), action, data, cancellationToken);
             }
         }
 

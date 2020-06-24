@@ -52,7 +52,6 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Hubs
         public class TestEntityHub : EntityHub<Test>
         {
             private readonly IGroupManager _groupManager;
-            private readonly string _connectionId;
 
             public TestEntityHub(IGroupManager groupManager, string connectionId)
             {

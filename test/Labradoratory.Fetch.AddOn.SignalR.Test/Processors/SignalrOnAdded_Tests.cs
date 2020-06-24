@@ -13,6 +13,8 @@ using Xunit;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
 {
+    // TODO: Can probably merge some add, delete, update tests to focus on the base class.  Help reduce test maintenance.
+
     public class SignalrOnAdded_Tests
     {
         [Fact]

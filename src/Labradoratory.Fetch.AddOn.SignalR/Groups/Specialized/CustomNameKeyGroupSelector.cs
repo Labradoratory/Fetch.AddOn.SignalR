@@ -3,17 +3,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using Labradoratory.Fetch.Processors.DataPackages;
 
-namespace Labradoratory.Fetch.AddOn.SignalR.Groups
+namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
 {
     /// <summary>
-    /// A simple group selector that sends notification to a group for the entity name and <see cref="Entity.EncodeKeys"/>.
+    /// A simple group selector that sends notification to a group for the custom name and <see cref="Entity.EncodeKeys"/>.
     /// </summary>
     /// <example>
-    /// For an entity named "Entity", this selector will return groups "entity/{encodedKeys}".
+    /// If the name value is "Test", this selector will return group "test/{id}".
     /// </example>
-    public class EntityIdGroupSelector<T> : EntityGroupSelector<T>
+    public class CustomNameKeyGroupSelector<T> : CustomNameGroupSelector<T>
         where T : Entity
     {
+        public CustomNameKeyGroupSelector(string name)
+            : base(name)
+        { }
+
         public override Task<IEnumerable<string>> GetGroupAsync(BaseEntityDataPackage<T> dataPackage, CancellationToken cancellationToken = default)
         {
             var name = GetName();

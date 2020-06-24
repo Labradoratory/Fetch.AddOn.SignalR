@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Labradoratory.Fetch.AddOn.SignalR.Groups
+namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
 {
     /// <summary>
     /// A simple group selector that sends notification to a group for the custom name.
@@ -11,16 +11,16 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups
     public class CustomNameGroupSelector<T> : EntityGroupSelector<T>
         where T : Entity
     {
-        private readonly string _name;
-
         public CustomNameGroupSelector(string name)
         {
-            _name = name;
+            Name = name;
         }
+
+        public string Name { get; }
 
         protected override string GetName()
         {
-            return _name;
+            return Name;
         }
     }
 }

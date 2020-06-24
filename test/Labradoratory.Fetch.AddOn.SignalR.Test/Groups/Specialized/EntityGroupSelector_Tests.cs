@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using Labradoratory.Fetch.AddOn.SignalR.Groups;
+using Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized;
 using Labradoratory.Fetch.Processors.DataPackages;
 using Xunit;
 

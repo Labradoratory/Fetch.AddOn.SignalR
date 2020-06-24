@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Labradoratory.Fetch.AddOn.SignalR.Data;
 using Labradoratory.Fetch.AddOn.SignalR.Groups;
 using Labradoratory.Fetch.AddOn.SignalR.Hubs;
-using Labradoratory.Fetch.Processors;
 using Labradoratory.Fetch.Processors.DataPackages;
 using Microsoft.AspNetCore.SignalR;
 
