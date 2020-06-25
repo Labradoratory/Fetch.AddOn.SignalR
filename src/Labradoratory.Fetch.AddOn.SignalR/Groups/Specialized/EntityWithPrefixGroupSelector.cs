@@ -13,15 +13,15 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
     /// <example>
     /// For an entity named "Entity" and the prefix adds "Parent", this selector will return group "parent/entity".
     /// </example>
-    public class EntityGroupSelectorWithPrefix<TEntity> : ISignalrGroupSelector<TEntity>
+    public class EntityWithPrefixGroupSelector<TEntity> : ISignalrGroupSelector<TEntity>
         where TEntity : Entity
     {
-        private readonly Func<BaseEntityDataPackage<TEntity>, string>[] _addPrefixes;
-
-        public EntityGroupSelectorWithPrefix(params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
+        public EntityWithPrefixGroupSelector(params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
         {
-            _addPrefixes = addPrefixes;
+            AddPrefixes = addPrefixes;
         }
+
+        public Func<BaseEntityDataPackage<TEntity>, string>[] AddPrefixes { get; }
 
         protected virtual string GetName()
         {
@@ -32,9 +32,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
         {
             var name = GetName();
             var groups = new List<string>();
-            if(_addPrefixes?.Length > 0)
+            if(AddPrefixes?.Length > 0)
             {
-                groups.AddRange(_addPrefixes.Select(prefixer => $"{prefixer(package)}/{name}"));
+                groups.AddRange(AddPrefixes.Select(prefixer => $"{prefixer(package)}/{name}"));
             }
 
             return Task.FromResult<IEnumerable<string>>(groups);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Labradoratory.Fetch.AddOn.SignalR.DependencyInjection;
@@ -29,6 +30,27 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.DependencyInjection
                 It.Is<ServiceDescriptor>(v =>
                     v.ServiceType == typeof(ISignalrGroupSelector<TestEntity>)
                     && v.ImplementationInstance is EntityGroupSelector<TestEntity>)),
+                Times.Once);
+        }
+
+        [Fact]
+        public void UseEntityGroupWithPrefix_Success()
+        {
+            var expectedPrefix = new Func<BaseEntityDataPackage<TestEntity>, string>(package => "blah");
+
+            var serviceCollectionMock = new Mock<IServiceCollection>(MockBehavior.Strict);
+            serviceCollectionMock.Setup(sc => sc.Add(It.IsAny<ServiceDescriptor>()));
+
+            var serviceProviderMock = new Mock<IServiceProvider>();
+
+            var subject = new SignalrGroupSelectorRegistrar<TestEntity>(serviceCollectionMock.Object);
+            subject.UseEntityGroupWithPrefix(expectedPrefix);
+
+            serviceCollectionMock.Verify(sc => sc.Add(
+                It.Is<ServiceDescriptor>(v =>
+                    v.ServiceType == typeof(ISignalrGroupSelector<TestEntity>)
+                    && v.ImplementationInstance is EntityWithPrefixGroupSelector<TestEntity>
+                    && (v.ImplementationInstance as EntityWithPrefixGroupSelector<TestEntity>).AddPrefixes.Contains(expectedPrefix))),
                 Times.Once);
         }
 
@@ -68,6 +90,29 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.DependencyInjection
                     v.ServiceType == typeof(ISignalrGroupSelector<TestEntity>)
                     && v.ImplementationInstance is CustomNameGroupSelector<TestEntity>
                     && (v.ImplementationInstance as CustomNameGroupSelector<TestEntity>).Name == expectedName)),
+                Times.Once);
+        }
+
+        [Fact]
+        public void UseNamedGroupWithPrefix_Success()
+        {
+            var expectedName = "TheExpectedName";
+            var expectedPrefix = new Func<BaseEntityDataPackage<TestEntity>, string>(package => "blah");
+
+            var serviceCollectionMock = new Mock<IServiceCollection>(MockBehavior.Strict);
+            serviceCollectionMock.Setup(sc => sc.Add(It.IsAny<ServiceDescriptor>()));
+
+            var serviceProviderMock = new Mock<IServiceProvider>();
+
+            var subject = new SignalrGroupSelectorRegistrar<TestEntity>(serviceCollectionMock.Object);
+            subject.UseNamedGroupWithPrefix(expectedName, expectedPrefix);
+
+            serviceCollectionMock.Verify(sc => sc.Add(
+                It.Is<ServiceDescriptor>(v =>
+                    v.ServiceType == typeof(ISignalrGroupSelector<TestEntity>)
+                    && v.ImplementationInstance is CustomNameWithPrefixGroupSelector<TestEntity>
+                    && (v.ImplementationInstance as CustomNameWithPrefixGroupSelector<TestEntity>).Name == expectedName
+                    && (v.ImplementationInstance as CustomNameWithPrefixGroupSelector<TestEntity>).AddPrefixes.Contains(expectedPrefix))),
                 Times.Once);
         }
 

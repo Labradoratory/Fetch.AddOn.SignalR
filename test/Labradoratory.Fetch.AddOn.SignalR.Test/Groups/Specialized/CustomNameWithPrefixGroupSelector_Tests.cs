@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized;
 using Labradoratory.Fetch.Processors.DataPackages;
@@ -9,19 +7,20 @@ using Xunit;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Test.Groups.Specialized
 {
-    public class EntityGroupSelectorWithPrefix_Tests
+    public class CustomNameWithPrefixGroupSelector_Tests
     {
         [Fact]
         public async void GetGroupAsync_Success()
         {
+            var expectedName = "MyGroupName";
             var expectedKey = "MyKey9876";
             var expectedPrefix1 = "prefix1";
             var expectedPrefix2 = "prefix2";
 
-            var expectedPath1 = $"{expectedPrefix1}/{typeof(TestEntity).Name.ToLower()}";
-            var expectedPath2 = $"{expectedPrefix2}/{typeof(TestEntity).Name.ToLower()}";
+            var expectedPath1 = $"{expectedPrefix1}/{expectedName}";
+            var expectedPath2 = $"{expectedPrefix2}/{expectedName}";
 
-            var subject = new EntityGroupSelectorWithPrefix<TestEntity>(package => expectedPrefix1, package => expectedPrefix2);
+            var subject = new CustomNameWithPrefixGroupSelector<TestEntity>(expectedName, package => expectedPrefix1, package => expectedPrefix2);
             var package = new EntityAddedPackage<TestEntity>(new TestEntity(expectedKey));
 
             var groups = (await subject.GetGroupAsync(package, CancellationToken.None)).ToList();
@@ -51,7 +50,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Groups.Specialized
 
             public override object[] GetKeys()
             {
-                return ToKeys(_key);
+                return Entity.ToKeys(_key);
             }
         }
     }

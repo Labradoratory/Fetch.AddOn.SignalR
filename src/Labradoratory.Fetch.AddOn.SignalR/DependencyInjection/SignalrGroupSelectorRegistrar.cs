@@ -31,7 +31,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.DependencyInjection
         /// <param name="addPrefixes">Functions to add prefixes to the group names.</param>
         public void UseEntityGroupWithPrefix(params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
         {
-            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new EntityGroupSelectorWithPrefix<TEntity>(addPrefixes));
+            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new EntityWithPrefixGroupSelector<TEntity>(addPrefixes));
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.DependencyInjection
         /// Uses a notification group with the specified <paramref name="name"/>.
         /// This allows notifictions for a type of entity using a custom name.
         /// </summary>
-        public void UseNamedGroup(string name, params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
+        public void UseNamedGroup(string name)
         {
             _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new CustomNameGroupSelector<TEntity>(name));
         }
@@ -58,7 +58,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.DependencyInjection
         /// </summary>
         public void UseNamedGroupWithPrefix(string name, params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
         {
-            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new CustomNameGroupSelectorWithPrefix<TEntity>(name, addPrefixes));
+            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new CustomNameWithPrefixGroupSelector<TEntity>(name, addPrefixes));
         }
 
         /// <summary>

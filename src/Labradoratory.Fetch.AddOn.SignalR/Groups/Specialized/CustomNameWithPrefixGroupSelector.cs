@@ -9,10 +9,10 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
     /// <example>
     /// If the name value is "Test" and prefix adds "Hello", this selector will return group "hello/test".
     /// </example>
-    public class CustomNameGroupSelectorWithPrefix<TEntity> : EntityGroupSelectorWithPrefix<TEntity>
+    public class CustomNameWithPrefixGroupSelector<TEntity> : EntityWithPrefixGroupSelector<TEntity>
         where TEntity : Entity
     {
-        public CustomNameGroupSelectorWithPrefix(string name, params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
+        public CustomNameWithPrefixGroupSelector(string name, params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
             : base(addPrefixes)
         {
             Name = name;
