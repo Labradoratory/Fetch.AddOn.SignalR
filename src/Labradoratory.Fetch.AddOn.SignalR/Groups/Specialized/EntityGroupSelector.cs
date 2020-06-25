@@ -16,13 +16,6 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
     public class EntityGroupSelector<TEntity> : ISignalrGroupSelector<TEntity>
         where TEntity : Entity
     {
-        private readonly Func<BaseEntityDataPackage<TEntity>, string>[] _addPrefixes;
-
-        public EntityGroupSelector(params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
-        {
-            _addPrefixes = addPrefixes;
-        }
-
         protected virtual string GetName()
         {
             return typeof(TEntity).Name.ToLower();
@@ -31,17 +24,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
         public virtual Task<IEnumerable<string>> GetGroupAsync(BaseEntityDataPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
             var name = GetName();
-            var groups = new List<string>();
-            if(_addPrefixes?.Length > 0)
-            {
-                groups.AddRange(_addPrefixes.Select(prefixer => $"{prefixer(package)}/{name}"));
-            }
-            else
-            {
-                groups.Add(name);
-            }
-
-            return Task.FromResult<IEnumerable<string>>(groups);
+            return Task.FromResult<IEnumerable<string>>(new List<string> { name });
         }
     }
 }

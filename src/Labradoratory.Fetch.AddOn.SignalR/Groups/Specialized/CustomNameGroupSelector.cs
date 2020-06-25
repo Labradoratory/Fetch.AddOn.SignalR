@@ -12,8 +12,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
     public class CustomNameGroupSelector<TEntity> : EntityGroupSelector<TEntity>
         where TEntity : Entity
     {
-        public CustomNameGroupSelector(string name, params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
-            : base(addPrefixes)
+        public CustomNameGroupSelector(string name)
         {
             Name = name;
         }

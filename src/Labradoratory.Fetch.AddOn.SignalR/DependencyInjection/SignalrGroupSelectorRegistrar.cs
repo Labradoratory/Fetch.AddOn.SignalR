@@ -19,9 +19,19 @@ namespace Labradoratory.Fetch.AddOn.SignalR.DependencyInjection
         /// Uses a notification group under the <see cref="Entity"/>'s name.
         /// This allows notifications for a type of entity.
         /// </summary>
-        public void UseEntityGroup(params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
+        public void UseEntityGroup()
         {
-            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new EntityGroupSelector<TEntity>(addPrefixes));
+            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new EntityGroupSelector<TEntity>());
+        }
+
+        /// <summary>
+        /// Uses a notification group under the <see cref="Entity"/>'s name with added prefixes.
+        /// This allows notifications for a type of entity.
+        /// </summary>
+        /// <param name="addPrefixes">Functions to add prefixes to the group names.</param>
+        public void UseEntityGroupWithPrefix(params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
+        {
+            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new EntityGroupSelectorWithPrefix<TEntity>(addPrefixes));
         }
 
         /// <summary>
@@ -39,7 +49,16 @@ namespace Labradoratory.Fetch.AddOn.SignalR.DependencyInjection
         /// </summary>
         public void UseNamedGroup(string name, params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
         {
-            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new CustomNameGroupSelector<TEntity>(name, addPrefixes));
+            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new CustomNameGroupSelector<TEntity>(name));
+        }
+
+        /// <summary>
+        /// Uses a notification group with the specified <paramref name="name"/> with added prefixes.
+        /// This allows notifictions for a type of entity using a custom name.
+        /// </summary>
+        public void UseNamedGroupWithPrefix(string name, params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
+        {
+            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new CustomNameGroupSelectorWithPrefix<TEntity>(name, addPrefixes));
         }
 
         /// <summary>

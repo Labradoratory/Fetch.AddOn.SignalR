@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized;
 using Labradoratory.Fetch.Processors.DataPackages;
@@ -7,19 +9,25 @@ using Xunit;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Test.Groups.Specialized
 {
-    public class EntityGroupSelector_Tests
+    public class EntityGroupSelectorWithPrefix_Tests
     {
         [Fact]
         public async void GetGroupAsync_Success()
         {
             var expectedKey = "MyKey9876";
+            var expectedPrefix1 = "prefix1";
+            var expectedPrefix2 = "prefix2";
 
-            var subject = new EntityGroupSelector<TestEntity>();
+            var expectedPath1 = $"{expectedPrefix1}/{typeof(TestEntity).Name.ToLower()}";
+            var expectedPath2 = $"{expectedPrefix2}/{typeof(TestEntity).Name.ToLower()}";
+
+            var subject = new EntityGroupSelectorWithPrefix<TestEntity>(package => expectedPrefix1, package => expectedPrefix2);
             var package = new EntityAddedPackage<TestEntity>(new TestEntity(expectedKey));
 
-            var groups = await subject.GetGroupAsync(package, CancellationToken.None);
-            Assert.Single(groups);
-            Assert.Equal(typeof(TestEntity).Name.ToLower(), groups.First());
+            var groups = (await subject.GetGroupAsync(package, CancellationToken.None)).ToList();
+            Assert.Equal(2, groups.Count);
+            Assert.Equal(expectedPath1, groups[0]);
+            Assert.Equal(expectedPath2, groups[1]);
         }
 
         public class TestEntity : Entity
