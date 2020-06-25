@@ -1,5 +1,7 @@
-﻿using Labradoratory.Fetch.AddOn.SignalR.Groups;
+﻿using System;
+using Labradoratory.Fetch.AddOn.SignalR.Groups;
 using Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized;
+using Labradoratory.Fetch.Processors.DataPackages;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.DependencyInjection
@@ -17,9 +19,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.DependencyInjection
         /// Uses a notification group under the <see cref="Entity"/>'s name.
         /// This allows notifications for a type of entity.
         /// </summary>
-        public void UseEntityGroup()
+        public void UseEntityGroup(params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
         {
-            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new EntityGroupSelector<TEntity>());
+            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new EntityGroupSelector<TEntity>(addPrefixes));
         }
 
         /// <summary>
@@ -35,9 +37,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.DependencyInjection
         /// Uses a notification group with the specified <paramref name="name"/>.
         /// This allows notifictions for a type of entity using a custom name.
         /// </summary>
-        public void UseNamedGroup(string name)
+        public void UseNamedGroup(string name, params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
         {
-            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new CustomNameGroupSelector<TEntity>(name));
+            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new CustomNameGroupSelector<TEntity>(name, addPrefixes));
         }
 
         /// <summary>
