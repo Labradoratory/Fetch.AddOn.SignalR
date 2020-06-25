@@ -22,6 +22,6 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Data
         /// <param name="package">The package containing the data to transform.</param>
         /// <param name="cancellationToken">[Optional] The token to monitor for cancellation requests.</param>
         /// <returns>The data that should be sent with a SignalR entity added notification.</returns>
-        Task<Operation[]> TransformAsync(EntityUpdatedPackage<TEntity> package, CancellationToken cancellationToken = default);
+        Task<UpdateData> TransformAsync(EntityUpdatedPackage<TEntity> package, CancellationToken cancellationToken = default);
     }
 }

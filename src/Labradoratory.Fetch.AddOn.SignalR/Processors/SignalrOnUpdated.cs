@@ -44,19 +44,18 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
 
         protected override async Task<object> GetDataAsync(EntityUpdatedPackage<TEntity> package, CancellationToken cancellationToken)
         {
-            var patch = await GetPatchAsync(package, cancellationToken);
+            if (_dataTransformer != null)
+                return await _dataTransformer.TransformAsync(package, cancellationToken);
+
+            var patch = package.Changes.ToJsonPatch();
             if (patch == null || patch.Length == 0)
                 return null;
 
-            return patch;
-        }
-
-        private Task<Operation[]> GetPatchAsync(EntityUpdatedPackage<TEntity> package, CancellationToken cancellationToken)
-        {
-            if (_dataTransformer != null)
-                return _dataTransformer.TransformAsync(package, cancellationToken);
-
-            return Task.FromResult(package.Changes.ToJsonPatch());
+            return new UpdateData
+            {
+                Keys = package.Entity.GetKeys(),
+                Patch = patch
+            };
         }
     }
 }

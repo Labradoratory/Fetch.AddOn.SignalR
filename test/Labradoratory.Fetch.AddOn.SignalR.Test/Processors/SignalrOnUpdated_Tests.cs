@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Labradoratory.Fetch.AddOn.SignalR.Data;
@@ -68,23 +69,27 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             mockClients.Verify(c => c.Group(expectedGroup1_2.ToLower()), Times.Once);
             mockClients.Verify(c => c.Group(expectedGroup2.ToLower()), Times.Once);
 
-            mockProxy.Verify(p => p.SendCoreAsync(expectedGroup1Update, It.Is<object[]>(v => CheckForPatch(v, expectedChanges)), It.IsAny<CancellationToken>()), Times.Once);
-            mockProxy.Verify(p => p.SendCoreAsync(expectedGroup1_2Update, It.Is<object[]>(v => CheckForPatch(v, expectedChanges)), It.IsAny<CancellationToken>()), Times.Once);
-            mockProxy.Verify(p => p.SendCoreAsync(expectedGroup2Update, It.Is<object[]>(v => CheckForPatch(v, expectedChanges)), It.IsAny<CancellationToken>()), Times.Once);
+            mockProxy.Verify(p => p.SendCoreAsync(expectedGroup1Update, It.Is<object[]>(v => CheckForPatch(v, expectedChanges, expectedKey)), It.IsAny<CancellationToken>()), Times.Once);
+            mockProxy.Verify(p => p.SendCoreAsync(expectedGroup1_2Update, It.Is<object[]>(v => CheckForPatch(v, expectedChanges, expectedKey)), It.IsAny<CancellationToken>()), Times.Once);
+            mockProxy.Verify(p => p.SendCoreAsync(expectedGroup2Update, It.Is<object[]>(v => CheckForPatch(v, expectedChanges, expectedKey)), It.IsAny<CancellationToken>()), Times.Once);
         }
 
-        private bool CheckForPatch(object[] args, ChangeSet expectedChangeSet)
+        private bool CheckForPatch(object[] args, ChangeSet expectedChangeSet, string expectedKey)
         {
-            var patch = (args.FirstOrDefault(a => a is Operation[]) as Operation[])?.ToList();
-            if (patch == null)
+            var update = args.FirstOrDefault(a => a is UpdateData) as UpdateData;
+            if (update == null)
                 return false;
 
-            return CheckForPatch(patch, expectedChangeSet);
+            return CheckForPatch(update, expectedChangeSet, expectedKey);
         }
 
-        private bool CheckForPatch(List<Operation> patch, ChangeSet expectedChangeSet)
+        private bool CheckForPatch(UpdateData update, ChangeSet expectedChangeSet, string expectedKey)
         {
+            Assert.Single(update.Keys);
+            Assert.Equal(expectedKey, update.Keys[0]);
+
             var expectedPatch = expectedChangeSet.ToJsonPatch().ToList();
+            var patch = update.Patch.ToList();
 
             while (expectedPatch.Count > 0 && patch.Count > 0)
             {
@@ -108,7 +113,11 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             var expectedChanges = ChangeSet.Create(ChangePath.Empty);
             expectedChanges.Add(ChangePath.Create("test"), new List<ChangeValue> { new ChangeValue { Action = ChangeAction.Update, NewValue = "mynewvalue", OldValue = "myoldvalue" } });
             var expectedPackage = new EntityUpdatedPackage<TestEntity>(expectedEntity, expectedChanges);
-            var expectedData = expectedChanges.ToJsonPatch();
+            var expectedData = new UpdateData
+            {
+                Keys = expectedEntity.GetKeys(),
+                Patch = expectedChanges.ToJsonPatch()
+            };
 
             var expectedToken = new CancellationToken();
 
@@ -161,7 +170,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             var mockSelectors = new[] { mockSelector1.Object };
 
             var mockDataTransformer = new Mock<ISignalrUpdateDataTransformer<TestEntity>>(MockBehavior.Strict);
-            mockDataTransformer.Setup(t => t.TransformAsync(It.IsAny<EntityUpdatedPackage<TestEntity>>(), It.IsAny<CancellationToken>())).ReturnsAsync(null as Operation[]);
+            mockDataTransformer.Setup(t => t.TransformAsync(It.IsAny<EntityUpdatedPackage<TestEntity>>(), It.IsAny<CancellationToken>())).ReturnsAsync(null as UpdateData);
 
             var subject = new SignalrOnUpdated<TestEntity, TestHub>(mockContext.Object, mockSelectors, dataTransformer: mockDataTransformer.Object);
             await subject.ProcessAsync(expectedPackage, expectedToken);
