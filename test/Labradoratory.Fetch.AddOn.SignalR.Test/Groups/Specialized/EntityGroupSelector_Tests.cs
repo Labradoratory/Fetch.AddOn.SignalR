@@ -22,6 +22,22 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Groups.Specialized
             Assert.Equal(typeof(TestEntity).Name.ToLower(), groups.First());
         }
 
+        [Fact]
+        public async void GetGroupAsync_WithPrefix_Success()
+        {
+            var expectedKey = "MyKey9876";
+            var expectedPrefix = "prefix";
+
+            var expectedPath = $"{expectedPrefix}/{typeof(TestEntity).Name.ToLower()}";
+
+            var subject = new EntityGroupSelector<TestEntity>(package => expectedPrefix);
+            var package = new EntityAddedPackage<TestEntity>(new TestEntity(expectedKey));
+
+            var groups = await subject.GetGroupAsync(package, CancellationToken.None);
+            Assert.Single(groups);
+            Assert.Equal(expectedPath, groups.First());
+        }
+
         public class TestEntity : Entity
         {
             private readonly string _key;

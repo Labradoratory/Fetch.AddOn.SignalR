@@ -1,4 +1,5 @@
 ﻿using System;
+using Labradoratory.Fetch.Processors.DataPackages;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
 {
@@ -8,10 +9,11 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
     /// <example>
     /// If the name value is "Test", this selector will return group "test".
     /// </example>
-    public class CustomNameGroupSelector<T> : EntityGroupSelector<T>
-        where T : Entity
+    public class CustomNameGroupSelector<TEntity> : EntityGroupSelector<TEntity>
+        where TEntity : Entity
     {
-        public CustomNameGroupSelector(string name)
+        public CustomNameGroupSelector(string name, params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
+            : base(addPrefixes)
         {
             Name = name;
         }

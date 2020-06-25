@@ -13,9 +13,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups
         /// <summary>
         /// Gets groups names to send notification to, for the provided data package.
         /// </summary>
-        /// <param name="entity">The entity to send notifications for.</param>
+        /// <param name="package">The <see cref="DataPackage"/> containing the entity to send notifications for.</param>
         /// <param name="cancellationToken">[Optional] The token to monitor for cancellation requests.</param>
         /// <returns>The transformed group name.</returns>
-        Task<IEnumerable<string>> GetGroupAsync(BaseEntityDataPackage<T> dataPackage, CancellationToken cancellationToken = default);
+        Task<IEnumerable<string>> GetGroupAsync(BaseEntityDataPackage<T> package, CancellationToken cancellationToken = default);
     }
 }
