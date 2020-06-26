@@ -13,6 +13,13 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
     public class EntityHub<T> : Hub<T>, IEntityHub
         where T : class
     {
+        private readonly ISignalrGroupNameTransformer _groupNameTransformer;
+
+        public EntityHub(ISignalrGroupNameTransformer groupNameTransformer)
+        {
+            _groupNameTransformer = groupNameTransformer;
+        }
+
         /// <summary>
         /// Gets the <see cref="IGroupManager"/> that should be used for managing groups.
         /// </summary>
@@ -45,7 +52,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
         /// <exception cref="ArgumentException">path</exception>
         public virtual async Task SubscribeEntity(string path)
         {
-            await GetGroups().AddToGroupAsync(Context.ConnectionId, path.ToLower());
+            await GetGroups().AddToGroupAsync(
+                Context.ConnectionId, 
+                (await _groupNameTransformer.TransformIfPossibleAsync(path)).ToLower());
         }
 
         /// <summary>
@@ -57,7 +66,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
         /// </remarks>
         public virtual async Task UnsubscribeEntity(string path)
         {
-            await GetGroups().RemoveFromGroupAsync(Context.ConnectionId, path.ToLower());
+            await GetGroups().RemoveFromGroupAsync(
+                Context.ConnectionId, 
+                (await _groupNameTransformer.TransformIfPossibleAsync(path)).ToLower());
         }
     }
 
