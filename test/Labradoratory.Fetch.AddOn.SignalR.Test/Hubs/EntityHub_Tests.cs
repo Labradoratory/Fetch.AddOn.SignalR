@@ -54,6 +54,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Hubs
             private readonly IGroupManager _groupManager;
 
             public TestEntityHub(IGroupManager groupManager, string connectionId)
+                : base(null)
             {
                 _groupManager = groupManager;
                 var mockContext = new Mock<HubCallerContext>(MockBehavior.Strict);

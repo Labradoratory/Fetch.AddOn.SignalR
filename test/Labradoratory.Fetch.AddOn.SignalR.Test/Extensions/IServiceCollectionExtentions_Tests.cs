@@ -173,6 +173,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
         { }
 
         public class TestHub : EntityHub<ITestHub>
-        { }
+        {
+            public TestHub() : base(null) 
+            { }
+        }
     }
 }
