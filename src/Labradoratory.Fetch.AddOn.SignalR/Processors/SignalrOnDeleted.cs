@@ -35,7 +35,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
 
         protected override Task<object> GetDataAsync(EntityDeletedPackage<TEntity> package, CancellationToken cancellationToken)
         {
-            return Task.FromResult<object>(package.Entity.EncodeKeys());
+            return Task.FromResult<object>(package.Entity.GetKeys());
         }
     }
 }

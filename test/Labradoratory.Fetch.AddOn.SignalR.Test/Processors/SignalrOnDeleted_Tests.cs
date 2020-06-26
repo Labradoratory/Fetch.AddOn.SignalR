@@ -60,9 +60,19 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             mockClients.Verify(c => c.Group(expectedGroup1_2.ToLower()), Times.Once);
             mockClients.Verify(c => c.Group(expectedGroup2.ToLower()), Times.Once);
 
-            mockProxy.Verify(p => p.SendCoreAsync(expectedGroup1Delete, It.Is<object[]>(v => v.Contains(expectedKey)), It.IsAny<CancellationToken>()), Times.Once);
-            mockProxy.Verify(p => p.SendCoreAsync(expectedGroup1_2Delete, It.Is<object[]>(v => v.Contains(expectedKey)), It.IsAny<CancellationToken>()), Times.Once);
-            mockProxy.Verify(p => p.SendCoreAsync(expectedGroup2Delete, It.Is<object[]>(v => v.Contains(expectedKey)), It.IsAny<CancellationToken>()), Times.Once);
+            var matchKey = new Func<object[], string, bool>((v, key) =>
+            {
+                if (v.Length != 1)
+                    return false;
+
+                if(v[0] is object[] keys)
+                    return keys.Length == 1 && Equals(keys[0], key);
+
+                return false;
+            });
+            mockProxy.Verify(p => p.SendCoreAsync(expectedGroup1Delete, It.Is<object[]>(v => matchKey(v, expectedKey)), It.IsAny<CancellationToken>()), Times.Once);
+            mockProxy.Verify(p => p.SendCoreAsync(expectedGroup1_2Delete, It.Is<object[]>(v => matchKey(v, expectedKey)), It.IsAny<CancellationToken>()), Times.Once);
+            mockProxy.Verify(p => p.SendCoreAsync(expectedGroup2Delete, It.Is<object[]>(v => matchKey(v, expectedKey)), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -95,9 +105,19 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
 
             var subject = new SignalrOnDeleted<TestEntity, TestHub>(mockContext.Object, mockSelectors, groupNameTransformer: mockNameTransformer.Object);
             await subject.ProcessAsync(new EntityDeletedPackage<TestEntity>(expectedEntity), expectedToken);
+            
+            var matchKey = new Func<object[], string, bool>((v, key) =>
+            {
+                if (v.Length != 1)
+                    return false;
 
+                if (v[0] is object[] keys)
+                    return keys.Length == 1 && Equals(keys[0], key);
+
+                return false;
+            });
             mockClients.Verify(c => c.Group(expectedTransformedGroup), Times.Once);
-            mockProxy.Verify(p => p.SendCoreAsync(expectedGroup1Add, It.Is<object[]>(v => v.Contains(expectedKey)), It.IsAny<CancellationToken>()), Times.Once);
+            mockProxy.Verify(p => p.SendCoreAsync(expectedGroup1Add, It.Is<object[]>(v => matchKey(v, expectedKey)), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         public class TestHub : Hub, IEntityHub
