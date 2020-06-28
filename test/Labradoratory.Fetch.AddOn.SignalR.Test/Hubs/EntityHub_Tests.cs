@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Labradoratory.Fetch.AddOn.SignalR.Groups;
 using Labradoratory.Fetch.AddOn.SignalR.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Moq;
@@ -20,7 +21,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Hubs
         public async Task SubscribeEntity_Success()
         {
             var expectedConnectionId = "connectionid";
-            var expectedPath = "This/Is/My/Path";
+            var expectedPath = new[] { "This", "Is", "My", "Path" };
 
             var mockGroupManager = new Mock<IGroupManager>(MockBehavior.Strict);
             mockGroupManager.Setup(g => g.AddToGroupAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
@@ -28,14 +29,14 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Hubs
             var subject = new TestEntityHub(mockGroupManager.Object, expectedConnectionId);
             await subject.SubscribeEntity(expectedPath);
 
-            mockGroupManager.Verify(g => g.AddToGroupAsync(expectedConnectionId, expectedPath.ToLower(), It.IsAny<CancellationToken>()), Times.Once);
+            mockGroupManager.Verify(g => g.AddToGroupAsync(expectedConnectionId, SignalrGroup.Create(expectedPath), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task UnsubscribeEntity_Success()
         {
             var expectedConnectionId = "connectionid";
-            var expectedPath = "This/Is/My/Path";
+            var expectedPath = new[] { "This", "Is", "My", "Path" };
 
             var mockGroupManager = new Mock<IGroupManager>(MockBehavior.Strict);
             mockGroupManager.Setup(g => g.RemoveFromGroupAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
@@ -43,7 +44,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Hubs
             var subject = new TestEntityHub(mockGroupManager.Object, expectedConnectionId);
             await subject.UnsubscribeEntity(expectedPath);
 
-            mockGroupManager.Verify(g => g.RemoveFromGroupAsync(expectedConnectionId, expectedPath.ToLower(), It.IsAny<CancellationToken>()), Times.Once);
+            mockGroupManager.Verify(g => g.RemoveFromGroupAsync(expectedConnectionId, SignalrGroup.Create(expectedPath), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         public interface Test

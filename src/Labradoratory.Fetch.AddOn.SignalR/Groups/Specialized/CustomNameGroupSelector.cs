@@ -1,4 +1,6 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Labradoratory.Fetch.Processors.DataPackages;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
@@ -9,7 +11,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
     /// <example>
     /// If the name value is "Test", this selector will return group "test".
     /// </example>
-    public class CustomNameGroupSelector<TEntity> : EntityGroupSelector<TEntity>
+    public class CustomNameGroupSelector<TEntity> : ISignalrGroupSelector<TEntity>
         where TEntity : Entity
     {
         public CustomNameGroupSelector(string name)
@@ -19,9 +21,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
 
         public string Name { get; }
 
-        protected override string GetName()
+        public virtual Task<IEnumerable<SignalrGroup>> GetGroupAsync(BaseEntityDataPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
-            return Name;
+            return Task.FromResult<IEnumerable<SignalrGroup>>(new List<SignalrGroup> { SignalrGroup.Create(Name) });
         }
     }
 }

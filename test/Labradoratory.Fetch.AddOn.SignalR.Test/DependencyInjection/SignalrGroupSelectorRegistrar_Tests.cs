@@ -36,7 +36,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.DependencyInjection
         [Fact]
         public void UseEntityGroupWithPrefix_Success()
         {
-            var expectedPrefix = new Func<BaseEntityDataPackage<TestEntity>, string>(package => "blah");
+            var expectedPrefix = new Func<BaseEntityDataPackage<TestEntity>, object[]>(package => new[] { "blah" });
 
             var serviceCollectionMock = new Mock<IServiceCollection>(MockBehavior.Strict);
             serviceCollectionMock.Setup(sc => sc.Add(It.IsAny<ServiceDescriptor>()));
@@ -50,7 +50,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.DependencyInjection
                 It.Is<ServiceDescriptor>(v =>
                     v.ServiceType == typeof(ISignalrGroupSelector<TestEntity>)
                     && v.ImplementationInstance is EntityWithPrefixGroupSelector<TestEntity>
-                    && (v.ImplementationInstance as EntityWithPrefixGroupSelector<TestEntity>).AddPrefixes.Contains(expectedPrefix))),
+                    && (v.ImplementationInstance as EntityWithPrefixGroupSelector<TestEntity>).AddPrefix == expectedPrefix)),
                 Times.Once);
         }
 
@@ -97,7 +97,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.DependencyInjection
         public void UseNamedGroupWithPrefix_Success()
         {
             var expectedName = "TheExpectedName";
-            var expectedPrefix = new Func<BaseEntityDataPackage<TestEntity>, string>(package => "blah");
+            var expectedPrefix = new Func<BaseEntityDataPackage<TestEntity>, object[]>(package => new[] { "blah" });
 
             var serviceCollectionMock = new Mock<IServiceCollection>(MockBehavior.Strict);
             serviceCollectionMock.Setup(sc => sc.Add(It.IsAny<ServiceDescriptor>()));
@@ -112,7 +112,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.DependencyInjection
                     v.ServiceType == typeof(ISignalrGroupSelector<TestEntity>)
                     && v.ImplementationInstance is CustomNameWithPrefixGroupSelector<TestEntity>
                     && (v.ImplementationInstance as CustomNameWithPrefixGroupSelector<TestEntity>).Name == expectedName
-                    && (v.ImplementationInstance as CustomNameWithPrefixGroupSelector<TestEntity>).AddPrefixes.Contains(expectedPrefix))),
+                    && (v.ImplementationInstance as CustomNameWithPrefixGroupSelector<TestEntity>).AddPrefix == expectedPrefix)),
                 Times.Once);
         }
 
@@ -157,7 +157,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.DependencyInjection
 
         public class TestSelector : ISignalrGroupSelector<TestEntity>
         {
-            public Task<IEnumerable<string>> GetGroupAsync(BaseEntityDataPackage<TestEntity> dataPackage, CancellationToken cancellationToken = default)
+            public Task<IEnumerable<SignalrGroup>> GetGroupAsync(BaseEntityDataPackage<TestEntity> dataPackage, CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }

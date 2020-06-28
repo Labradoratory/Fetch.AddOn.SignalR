@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Labradoratory.Fetch.Processors.DataPackages;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
@@ -9,20 +13,21 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
     /// <example>
     /// If the name value is "Test" and prefix adds "Hello", this selector will return group "hello/test".
     /// </example>
-    public class CustomNameWithPrefixGroupSelector<TEntity> : EntityWithPrefixGroupSelector<TEntity>
+    public class CustomNameWithPrefixGroupSelector<TEntity> : CustomNameGroupSelector<TEntity>
         where TEntity : Entity
     {
-        public CustomNameWithPrefixGroupSelector(string name, params Func<BaseEntityDataPackage<TEntity>, string>[] addPrefixes)
-            : base(addPrefixes)
+        public CustomNameWithPrefixGroupSelector(string name, Func<BaseEntityDataPackage<TEntity>, object[]> addPrefix)
+            : base(name)
         {
-            Name = name;
+            AddPrefix = addPrefix;
         }
 
-        public string Name { get; }
+        public Func<BaseEntityDataPackage<TEntity>, object[]> AddPrefix { get; }
 
-        protected override string GetName()
+        public override async Task<IEnumerable<SignalrGroup>> GetGroupAsync(BaseEntityDataPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
-            return Name;
+            var group = await base.GetGroupAsync(package, cancellationToken);
+            return group.Select(g => g.Prepend(AddPrefix(package)));
         }
     }
 }

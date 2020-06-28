@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Labradoratory.Fetch.Processors.DataPackages;
+﻿using System;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
 {
@@ -11,13 +8,11 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
     /// <example>
     /// For an entity named "Entity", this selector will return groups "entity/{encodedKeys}".
     /// </example>
-    public class EntityKeyGroupSelector<T> : EntityGroupSelector<T>
-        where T : Entity
+    public class EntityKeyGroupSelector<TEntity> : CustomNameKeyGroupSelector<TEntity>
+        where TEntity : Entity
     {
-        public override Task<IEnumerable<string>> GetGroupAsync(BaseEntityDataPackage<T> dataPackage, CancellationToken cancellationToken = default)
-        {
-            var name = GetName();
-            return Task.FromResult<IEnumerable<string>>(new[] { $"{name}/{dataPackage.Entity.EncodeKeys()}" });
-        }
+        public EntityKeyGroupSelector(bool useFullName = false)
+            : base(useFullName ? typeof(TEntity).FullName : typeof(TEntity).Name)
+        { }
     }
 }

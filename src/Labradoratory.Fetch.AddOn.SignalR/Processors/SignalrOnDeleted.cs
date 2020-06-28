@@ -27,7 +27,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         public SignalrOnDeleted(
             IHubContext<THub> hubContext,
             IEnumerable<ISignalrGroupSelector<TEntity>> groupSelectors,
-            ISignalrGroupNameTransformer groupNameTransformer = null)
+            ISignalrGroupTransformer groupNameTransformer = null)
             : base(hubContext, groupSelectors, groupNameTransformer)
         { }
 

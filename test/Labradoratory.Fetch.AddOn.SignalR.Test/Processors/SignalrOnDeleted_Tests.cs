@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,13 +27,13 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
         [Fact]
         public async Task ProcessAsync_SendsToGroups()
         {
-            var expectedGroup1 = "MyGroup1";
-            var expectedGroup1_2 = "MyGroup1.2";
-            var expectedGroup2 = "SomeOtherGroup2";
+            var expectedGroup1 = SignalrGroup.Create("MyGroup1");
+            var expectedGroup1_2 = SignalrGroup.Create("MyGroup1_2");
+            var expectedGroup2 = SignalrGroup.Create("SomeOtherGroup2");
 
-            var expectedGroup1Delete = $"{expectedGroup1.ToLower()}/delete";
-            var expectedGroup1_2Delete = $"{expectedGroup1_2.ToLower()}/delete";
-            var expectedGroup2Delete = $"{expectedGroup2.ToLower()}/delete";
+            var expectedGroup1Delete = expectedGroup1.Append("delete");
+            var expectedGroup1_2Delete = expectedGroup1_2.Append("delete");
+            var expectedGroup2Delete = expectedGroup2.Append("delete");
 
             var expectedKey = "MyKey123";
             var expectedEntity = new TestEntity(expectedKey);
@@ -56,9 +58,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             var subject = new SignalrOnDeleted<TestEntity, TestHub>(mockContext.Object, mockSelectors);
             await subject.ProcessAsync(new EntityDeletedPackage<TestEntity>(expectedEntity), expectedToken);
 
-            mockClients.Verify(c => c.Group(expectedGroup1.ToLower()), Times.Once);
-            mockClients.Verify(c => c.Group(expectedGroup1_2.ToLower()), Times.Once);
-            mockClients.Verify(c => c.Group(expectedGroup2.ToLower()), Times.Once);
+            mockClients.Verify(c => c.Group(expectedGroup1), Times.Once);
+            mockClients.Verify(c => c.Group(expectedGroup1_2), Times.Once);
+            mockClients.Verify(c => c.Group(expectedGroup2), Times.Once);
 
             var matchKey = new Func<object[], string, bool>((v, key) =>
             {
@@ -78,9 +80,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
         [Fact]
         public async Task ProcessAsync_TransformsGroup()
         {
-            var expectedGroup1 = "MyGroup1";
-            var expectedGroup1Add = $"{expectedGroup1.ToLower()}/delete";
-            var expectedTransformedGroup = $"transformed.{expectedGroup1}".ToLower();
+            var expectedGroup1 = SignalrGroup.Create("MyGroup1");
+            var expectedGroup1Delete = expectedGroup1.Append("delete");
+            var expectedTransformedGroup = expectedGroup1.Prepend("transformed");
 
             var expectedKey = "MyKey123";
             var expectedEntity = new TestEntity(expectedKey);
@@ -100,8 +102,8 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             mockSelector1.Setup(s => s.GetGroupAsync(It.IsAny<BaseEntityDataPackage<TestEntity>>(), It.IsAny<CancellationToken>())).ReturnsAsync(new[] { expectedGroup1 });
             var mockSelectors = new[] { mockSelector1.Object };
 
-            var mockNameTransformer = new Mock<ISignalrGroupNameTransformer>(MockBehavior.Strict);
-            mockNameTransformer.Setup(t => t.TransformAsync(It.Is<string>(v => v == expectedGroup1), It.IsAny<CancellationToken>())).ReturnsAsync(expectedTransformedGroup);
+            var mockNameTransformer = new Mock<ISignalrGroupTransformer>(MockBehavior.Strict);
+            mockNameTransformer.Setup(t => t.TransformAsync(It.Is<SignalrGroup>(v => v == expectedGroup1), It.IsAny<CancellationToken>())).ReturnsAsync(expectedTransformedGroup);
 
             var subject = new SignalrOnDeleted<TestEntity, TestHub>(mockContext.Object, mockSelectors, groupNameTransformer: mockNameTransformer.Object);
             await subject.ProcessAsync(new EntityDeletedPackage<TestEntity>(expectedEntity), expectedToken);
@@ -117,17 +119,17 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
                 return false;
             });
             mockClients.Verify(c => c.Group(expectedTransformedGroup), Times.Once);
-            mockProxy.Verify(p => p.SendCoreAsync(expectedGroup1Add, It.Is<object[]>(v => matchKey(v, expectedKey)), It.IsAny<CancellationToken>()), Times.Once);
+            mockProxy.Verify(p => p.SendCoreAsync(expectedGroup1Delete, It.Is<object[]>(v => matchKey(v, expectedKey)), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         public class TestHub : Hub, IEntityHub
         {
-            public Task SubscribeEntity(string path)
+            public Task SubscribeEntity(IEnumerable<object> groupParts)
             {
                 throw new NotImplementedException();
             }
 
-            public Task UnsubscribeEntity(string path)
+            public Task UnsubscribeEntity(IEnumerable<object> groupParts)
             {
                 throw new NotImplementedException();
             }

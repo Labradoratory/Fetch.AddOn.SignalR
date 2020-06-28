@@ -15,13 +15,14 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Groups.Specialized
         {
             var expectedKey = "MyKey9876";
             var expectedName = "MyGroupName";
+            var expectedGroup = SignalrGroup.Create(expectedName);
 
             var subject = new CustomNameGroupSelector<TestEntity>(expectedName);
             var package = new EntityAddedPackage<TestEntity>(new TestEntity(expectedKey));
 
             var groups = await subject.GetGroupAsync(package, CancellationToken.None);
             Assert.Single(groups);
-            Assert.Equal(expectedName, groups.First());
+            Assert.Equal(expectedGroup, groups.First());
         }
 
         public class TestEntity : Entity

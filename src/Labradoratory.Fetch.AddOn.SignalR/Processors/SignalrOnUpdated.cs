@@ -33,7 +33,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         public SignalrOnUpdated(
             IHubContext<THub> hubContext,
             IEnumerable<ISignalrGroupSelector<TEntity>> groupSelectors,
-            ISignalrGroupNameTransformer groupNameTransformer = null,
+            ISignalrGroupTransformer groupNameTransformer = null,
             ISignalrUpdateDataTransformer<TEntity> dataTransformer = null)
             : base(hubContext, groupSelectors, groupNameTransformer)
         {

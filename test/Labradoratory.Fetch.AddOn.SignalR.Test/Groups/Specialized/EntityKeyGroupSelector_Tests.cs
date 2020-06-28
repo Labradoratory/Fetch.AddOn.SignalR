@@ -14,13 +14,14 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Groups.Specialized
         public async void GetGroupAsync_Success()
         {
             var expectedKey = "MyKey9876";
+            var expectedGroup = SignalrGroup.Create(typeof(TestEntity).Name, expectedKey);
 
             var subject = new EntityKeyGroupSelector<TestEntity>();
             var package = new EntityAddedPackage<TestEntity>(new TestEntity(expectedKey));
 
             var groups = await subject.GetGroupAsync(package, CancellationToken.None);
             Assert.Single(groups);
-            Assert.Equal($"{typeof(TestEntity).Name.ToLower()}/{expectedKey}", groups.First());
+            Assert.Equal(expectedGroup, groups.First());
         }
 
         public class TestEntity : Entity

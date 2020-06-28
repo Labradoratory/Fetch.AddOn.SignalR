@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Labradoratory.Fetch.Processors.DataPackages;
@@ -18,10 +19,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
             : base(name)
         { }
 
-        public override Task<IEnumerable<string>> GetGroupAsync(BaseEntityDataPackage<T> dataPackage, CancellationToken cancellationToken = default)
+        public override Task<IEnumerable<SignalrGroup>> GetGroupAsync(BaseEntityDataPackage<T> dataPackage, CancellationToken cancellationToken = default)
         {
-            var name = GetName();
-            return Task.FromResult<IEnumerable<string>>(new[] { $"{name}/{dataPackage.Entity.EncodeKeys()}" });
+            return Task.FromResult<IEnumerable<SignalrGroup>>(new[] { SignalrGroup.Create(dataPackage.Entity.GetKeys().Prepend(Name).ToArray()) });
         }
     }
 }

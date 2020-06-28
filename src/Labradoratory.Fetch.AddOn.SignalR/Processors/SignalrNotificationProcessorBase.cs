@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Labradoratory.Fetch.AddOn.SignalR.Groups;
@@ -24,7 +25,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         public SignalrNotificationProcessorBase(
             IHubContext<THub> hubContext,
             IEnumerable<ISignalrGroupSelector<TEntity>> groupSelectors,
-            ISignalrGroupNameTransformer groupNameTransformer = null)
+            ISignalrGroupTransformer groupNameTransformer = null)
         {
             HubContext = hubContext;
             GroupSelectors = groupSelectors;
@@ -37,14 +38,14 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
 
         protected IHubContext<THub> HubContext { get; }
         protected IEnumerable<ISignalrGroupSelector<TEntity>> GroupSelectors { get; }
-        protected ISignalrGroupNameTransformer GroupNameTransformer { get; }
+        protected ISignalrGroupTransformer GroupNameTransformer { get; }
 
         public virtual async Task ProcessAsync(TPackage package, CancellationToken cancellationToken = default)
         {
             // NOTE: We could make this run in parallel, but there may be situations where an user
             // may not want that to happen.  We'd probably need a flag to turn off parallel or something.
             // Right now it just isn't worth doing.
-            var groups = new HashSet<string>();
+            var groups = new HashSet<SignalrGroup>();
             foreach (var selector in GroupSelectors)
             {
                 foreach (var group in await selector.GetGroupAsync(package, cancellationToken))
@@ -63,9 +64,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
 
             foreach (var group in groups)
             {
-                var action = PrefixActionWithGroup(group);
+                var action = group.Append(Action);
                 var transformedGroup = await GroupNameTransformer.TransformIfPossibleAsync(group, cancellationToken);
-                await SendAsync(transformedGroup.ToLower(), action, data, cancellationToken);
+                await SendAsync(transformedGroup, action, data, cancellationToken);
             }
         }
 
@@ -74,11 +75,6 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         protected virtual Task SendAsync(string group, string action, object data, CancellationToken cancellationToken)
         {
             return HubContext.Clients.Group(group).SendAsync(action, data, cancellationToken);
-        }
-
-        protected virtual string PrefixActionWithGroup(string group)
-        {
-            return $"{group}/{Action}".ToLower();
         }
     }
 }
