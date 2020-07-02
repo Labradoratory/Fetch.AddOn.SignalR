@@ -8,11 +8,11 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
     /// <example>
     /// For an entity named "Entity", this selector will return group "entity".
     /// </example>
-    public class EntityGroupSelector<TEntity> : CustomNameGroupSelector<TEntity>
+    public class EntityGroupSelector<TEntity> : CustomGroupSelector<TEntity>
         where TEntity : Entity
     {
         public EntityGroupSelector(bool useFullName = false)
-            : base(useFullName ? typeof(TEntity).FullName : typeof(TEntity).Name)
+            : base(SignalrGroup.Create(useFullName ? typeof(TEntity).FullName : typeof(TEntity).Name))
         { }
     }
 }

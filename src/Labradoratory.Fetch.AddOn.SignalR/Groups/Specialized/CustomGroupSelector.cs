@@ -11,19 +11,19 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
     /// <example>
     /// If the name value is "Test", this selector will return group "test".
     /// </example>
-    public class CustomNameGroupSelector<TEntity> : ISignalrGroupSelector<TEntity>
+    public class CustomGroupSelector<TEntity> : ISignalrGroupSelector<TEntity>
         where TEntity : Entity
     {
-        public CustomNameGroupSelector(params object[] nameParts)
+        public CustomGroupSelector(SignalrGroup group)
         {
-            NameParts = nameParts;
+            Group = group;
         }
 
-        public object[] NameParts { get; }
+        public SignalrGroup Group { get; }
 
         public virtual Task<IEnumerable<SignalrGroup>> GetGroupAsync(BaseEntityDataPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult<IEnumerable<SignalrGroup>>(new List<SignalrGroup> { SignalrGroup.Create(NameParts) });
+            return Task.FromResult<IEnumerable<SignalrGroup>>(new List<SignalrGroup> { Group });
         }
     }
 }

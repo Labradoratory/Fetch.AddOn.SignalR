@@ -19,7 +19,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Groups.Specialized
 
             var expectedPath1 = expectedName.Prepend(expectedPrefix1);
 
-            var subject = new CustomNameWithPrefixGroupSelector<TestEntity>(package => new[] { expectedPrefix1 }, expectedName);
+            var subject = new CustomGroupWithPrefixGroupSelector<TestEntity>(expectedName, package => new[] { expectedPrefix1 });
             var package = new EntityAddedPackage<TestEntity>(new TestEntity(expectedKey));
 
             var groups = (await subject.GetGroupAsync(package, CancellationToken.None)).ToList();

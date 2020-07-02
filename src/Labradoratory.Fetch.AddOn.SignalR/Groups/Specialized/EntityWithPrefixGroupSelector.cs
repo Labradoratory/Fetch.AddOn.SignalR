@@ -9,11 +9,11 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
     /// <example>
     /// For an entity named "Entity" and the prefix adds "Parent", this selector will return group "parent/entity".
     /// </example>
-    public class EntityWithPrefixGroupSelector<TEntity> : CustomNameWithPrefixGroupSelector<TEntity>
+    public class EntityWithPrefixGroupSelector<TEntity> : CustomGroupWithPrefixGroupSelector<TEntity>
         where TEntity : Entity
     {
         public EntityWithPrefixGroupSelector(Func<BaseEntityDataPackage<TEntity>, object[]> addPrefix, bool useFullName = false)
-            : base(addPrefix, useFullName ? typeof(TEntity).FullName : typeof(TEntity).Name)
+            : base(SignalrGroup.Create(useFullName ? typeof(TEntity).FullName : typeof(TEntity).Name), addPrefix)
         { }
     }
 }

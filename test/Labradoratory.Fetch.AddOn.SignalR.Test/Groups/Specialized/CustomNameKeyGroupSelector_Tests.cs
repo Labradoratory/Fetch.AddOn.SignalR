@@ -14,10 +14,10 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Groups.Specialized
         public async void GetGroupAsync_Success()
         {
             var expectedKey = "MyKey9876";
-            var expectedName = "MyGroupName";
+            var expectedName = SignalrGroup.Create("MyGroupName");
             var expectedGroup = SignalrGroup.Create(expectedName, expectedKey);
 
-            var subject = new CustomNameKeyGroupSelector<TestEntity>(expectedName);
+            var subject = new CustomGroupKeyGroupSelector<TestEntity>(expectedName);
             var package = new EntityAddedPackage<TestEntity>(new TestEntity(expectedKey));
 
             var groups = await subject.GetGroupAsync(package, CancellationToken.None);

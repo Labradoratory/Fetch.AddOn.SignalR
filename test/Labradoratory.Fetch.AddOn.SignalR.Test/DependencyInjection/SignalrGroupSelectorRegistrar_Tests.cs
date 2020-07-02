@@ -75,7 +75,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.DependencyInjection
         [Fact]
         public void UseNamedGroup_Success()
         {
-            var expectedName = "TheExpectedName";
+            var expectedName = SignalrGroup.Create("TheExpectedName");
 
             var serviceCollectionMock = new Mock<IServiceCollection>(MockBehavior.Strict);
             serviceCollectionMock.Setup(sc => sc.Add(It.IsAny<ServiceDescriptor>()));
@@ -83,20 +83,20 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.DependencyInjection
             var serviceProviderMock = new Mock<IServiceProvider>();
 
             var subject = new SignalrGroupSelectorRegistrar<TestEntity>(serviceCollectionMock.Object);
-            subject.UseNamedGroup(expectedName);
+            subject.UseGroup(expectedName);
 
             serviceCollectionMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v =>
                     v.ServiceType == typeof(ISignalrGroupSelector<TestEntity>)
-                    && v.ImplementationInstance is CustomNameGroupSelector<TestEntity>
-                    && Equals((v.ImplementationInstance as CustomNameGroupSelector<TestEntity>).NameParts[0], expectedName))),
+                    && v.ImplementationInstance is CustomGroupSelector<TestEntity>
+                    && Equals((v.ImplementationInstance as CustomGroupSelector<TestEntity>).Group, expectedName))),
                 Times.Once);
         }
 
         [Fact]
         public void UseNamedGroupWithPrefix_Success()
         {
-            var expectedName = "TheExpectedName";
+            var expectedName = SignalrGroup.Create("TheExpectedName");
             var expectedPrefix = new Func<BaseEntityDataPackage<TestEntity>, object[]>(package => new[] { "blah" });
 
             var serviceCollectionMock = new Mock<IServiceCollection>(MockBehavior.Strict);
@@ -105,21 +105,21 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.DependencyInjection
             var serviceProviderMock = new Mock<IServiceProvider>();
 
             var subject = new SignalrGroupSelectorRegistrar<TestEntity>(serviceCollectionMock.Object);
-            subject.UseNamedGroupWithPrefix(expectedPrefix, expectedName);
+            subject.UseGroupWithPrefix(expectedName, expectedPrefix);
 
             serviceCollectionMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v =>
                     v.ServiceType == typeof(ISignalrGroupSelector<TestEntity>)
-                    && v.ImplementationInstance is CustomNameWithPrefixGroupSelector<TestEntity>
-                    && Equals((v.ImplementationInstance as CustomNameWithPrefixGroupSelector<TestEntity>).NameParts[0], expectedName)
-                    && (v.ImplementationInstance as CustomNameWithPrefixGroupSelector<TestEntity>).AddPrefix == expectedPrefix)),
+                    && v.ImplementationInstance is CustomGroupWithPrefixGroupSelector<TestEntity>
+                    && Equals((v.ImplementationInstance as CustomGroupWithPrefixGroupSelector<TestEntity>).Group, expectedName)
+                    && (v.ImplementationInstance as CustomGroupWithPrefixGroupSelector<TestEntity>).AddPrefix == expectedPrefix)),
                 Times.Once);
         }
 
         [Fact]
         public void UseNamedGroupWithKeys_Success()
         {
-            var expectedName = "TheExpectedName";
+            var expectedName = SignalrGroup.Create("TheExpectedName");
 
             var serviceCollectionMock = new Mock<IServiceCollection>(MockBehavior.Strict);
             serviceCollectionMock.Setup(sc => sc.Add(It.IsAny<ServiceDescriptor>()));
@@ -127,13 +127,13 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.DependencyInjection
             var serviceProviderMock = new Mock<IServiceProvider>();
 
             var subject = new SignalrGroupSelectorRegistrar<TestEntity>(serviceCollectionMock.Object);
-            subject.UseNamedGroupWithKeys(expectedName);
+            subject.UseGroupWithKeys(expectedName);
 
             serviceCollectionMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v =>
                     v.ServiceType == typeof(ISignalrGroupSelector<TestEntity>)
-                    && v.ImplementationInstance is CustomNameKeyGroupSelector<TestEntity>
-                    && Equals((v.ImplementationInstance as CustomNameKeyGroupSelector<TestEntity>).NameParts[0], expectedName))),
+                    && v.ImplementationInstance is CustomGroupKeyGroupSelector<TestEntity>
+                    && Equals((v.ImplementationInstance as CustomGroupKeyGroupSelector<TestEntity>).Group, expectedName))),
                 Times.Once);
         }
 
