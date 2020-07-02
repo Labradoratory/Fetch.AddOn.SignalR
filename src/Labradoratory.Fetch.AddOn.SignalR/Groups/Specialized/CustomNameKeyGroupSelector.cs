@@ -15,13 +15,13 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
     public class CustomNameKeyGroupSelector<T> : CustomNameGroupSelector<T>
         where T : Entity
     {
-        public CustomNameKeyGroupSelector(string name)
-            : base(name)
+        public CustomNameKeyGroupSelector(params object[] nameParts)
+            : base(nameParts)
         { }
 
         public override Task<IEnumerable<SignalrGroup>> GetGroupAsync(BaseEntityDataPackage<T> dataPackage, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult<IEnumerable<SignalrGroup>>(new[] { SignalrGroup.Create(dataPackage.Entity.GetKeys().Prepend(Name).ToArray()) });
+            return Task.FromResult<IEnumerable<SignalrGroup>>(new[] { SignalrGroup.Create(NameParts.Concat(dataPackage.Entity.GetKeys()).ToArray()) });
         }
     }
 }

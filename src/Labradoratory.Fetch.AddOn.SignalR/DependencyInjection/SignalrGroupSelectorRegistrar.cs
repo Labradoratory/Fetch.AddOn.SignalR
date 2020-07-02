@@ -47,27 +47,27 @@ namespace Labradoratory.Fetch.AddOn.SignalR.DependencyInjection
         /// Uses a notification group with the specified <paramref name="name"/>.
         /// This allows notifictions for a type of entity using a custom name.
         /// </summary>
-        public void UseNamedGroup(string name)
+        public void UseNamedGroup(params object[] nameParts)
         {
-            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new CustomNameGroupSelector<TEntity>(name));
+            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new CustomNameGroupSelector<TEntity>(nameParts));
         }
 
         /// <summary>
         /// Uses a notification group with the specified <paramref name="name"/> with added prefix.
         /// This allows notifictions for a type of entity using a custom name.
         /// </summary>
-        public void UseNamedGroupWithPrefix(string name, Func<BaseEntityDataPackage<TEntity>, object[]> addPrefix)
+        public void UseNamedGroupWithPrefix(Func<BaseEntityDataPackage<TEntity>, object[]> addPrefix, params object[] nameParts)
         {
-            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new CustomNameWithPrefixGroupSelector<TEntity>(name, addPrefix));
+            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new CustomNameWithPrefixGroupSelector<TEntity>(addPrefix, nameParts));
         }
 
         /// <summary>
         /// Uses a notification group with the specified <paramref name="name"/> and keys from <see cref="Entity.EncodeKeys"/>.
         /// This allows notifications for a specific entity instance using a custom name.
         /// </summary>
-        public void UseNamedGroupWithKeys(string name)
+        public void UseNamedGroupWithKeys(params object[] nameParts)
         {
-            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new CustomNameKeyGroupSelector<TEntity>(name));
+            _serviceCollection.AddSingleton<ISignalrGroupSelector<TEntity>>(new CustomNameKeyGroupSelector<TEntity>(nameParts));
         }
 
         /// <summary>

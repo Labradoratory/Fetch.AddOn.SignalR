@@ -89,7 +89,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.DependencyInjection
                 It.Is<ServiceDescriptor>(v =>
                     v.ServiceType == typeof(ISignalrGroupSelector<TestEntity>)
                     && v.ImplementationInstance is CustomNameGroupSelector<TestEntity>
-                    && (v.ImplementationInstance as CustomNameGroupSelector<TestEntity>).Name == expectedName)),
+                    && Equals((v.ImplementationInstance as CustomNameGroupSelector<TestEntity>).NameParts[0], expectedName))),
                 Times.Once);
         }
 
@@ -105,13 +105,13 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.DependencyInjection
             var serviceProviderMock = new Mock<IServiceProvider>();
 
             var subject = new SignalrGroupSelectorRegistrar<TestEntity>(serviceCollectionMock.Object);
-            subject.UseNamedGroupWithPrefix(expectedName, expectedPrefix);
+            subject.UseNamedGroupWithPrefix(expectedPrefix, expectedName);
 
             serviceCollectionMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v =>
                     v.ServiceType == typeof(ISignalrGroupSelector<TestEntity>)
                     && v.ImplementationInstance is CustomNameWithPrefixGroupSelector<TestEntity>
-                    && (v.ImplementationInstance as CustomNameWithPrefixGroupSelector<TestEntity>).Name == expectedName
+                    && Equals((v.ImplementationInstance as CustomNameWithPrefixGroupSelector<TestEntity>).NameParts[0], expectedName)
                     && (v.ImplementationInstance as CustomNameWithPrefixGroupSelector<TestEntity>).AddPrefix == expectedPrefix)),
                 Times.Once);
         }
@@ -133,7 +133,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.DependencyInjection
                 It.Is<ServiceDescriptor>(v =>
                     v.ServiceType == typeof(ISignalrGroupSelector<TestEntity>)
                     && v.ImplementationInstance is CustomNameKeyGroupSelector<TestEntity>
-                    && (v.ImplementationInstance as CustomNameKeyGroupSelector<TestEntity>).Name == expectedName)),
+                    && Equals((v.ImplementationInstance as CustomNameKeyGroupSelector<TestEntity>).NameParts[0], expectedName))),
                 Times.Once);
         }
 

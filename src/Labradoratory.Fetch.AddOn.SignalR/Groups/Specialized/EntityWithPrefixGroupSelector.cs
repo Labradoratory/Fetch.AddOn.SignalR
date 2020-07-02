@@ -13,7 +13,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
         where TEntity : Entity
     {
         public EntityWithPrefixGroupSelector(Func<BaseEntityDataPackage<TEntity>, object[]> addPrefix, bool useFullName = false)
-            : base(useFullName ? typeof(TEntity).FullName : typeof(TEntity).Name, addPrefix)
+            : base(addPrefix, useFullName ? typeof(TEntity).FullName : typeof(TEntity).Name)
         { }
     }
 }

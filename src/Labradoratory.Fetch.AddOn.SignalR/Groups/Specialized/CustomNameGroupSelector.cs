@@ -14,16 +14,16 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Groups.Specialized
     public class CustomNameGroupSelector<TEntity> : ISignalrGroupSelector<TEntity>
         where TEntity : Entity
     {
-        public CustomNameGroupSelector(string name)
+        public CustomNameGroupSelector(params object[] nameParts)
         {
-            Name = name;
+            NameParts = nameParts;
         }
 
-        public string Name { get; }
+        public object[] NameParts { get; }
 
         public virtual Task<IEnumerable<SignalrGroup>> GetGroupAsync(BaseEntityDataPackage<TEntity> package, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult<IEnumerable<SignalrGroup>>(new List<SignalrGroup> { SignalrGroup.Create(Name) });
+            return Task.FromResult<IEnumerable<SignalrGroup>>(new List<SignalrGroup> { SignalrGroup.Create(NameParts) });
         }
     }
 }
