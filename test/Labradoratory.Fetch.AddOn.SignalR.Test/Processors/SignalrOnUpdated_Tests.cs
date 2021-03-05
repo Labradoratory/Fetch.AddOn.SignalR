@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Labradoratory.Fetch.AddOn.SignalR.Data;
@@ -11,7 +10,7 @@ using Labradoratory.Fetch.AddOn.SignalR.Processors;
 using Labradoratory.Fetch.ChangeTracking;
 using Labradoratory.Fetch.Extensions;
 using Labradoratory.Fetch.Processors.DataPackages;
-using Microsoft.AspNetCore.JsonPatch.Operations;
+using Labradoratory.Fetch.Processors.Stages;
 using Microsoft.AspNetCore.SignalR;
 using Moq;
 using Xunit;
@@ -25,7 +24,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
         {
             var mockContext = new Mock<IHubContext<TestHub>>(MockBehavior.Strict);
             var subject = new SignalrOnUpdated<TestEntity, TestHub>(mockContext.Object, Enumerable.Empty<ISignalrGroupSelector<TestEntity>>());
-            Assert.Equal(0u, subject.Priority);
+            Assert.Equal(new NumericPriorityStage(0), subject.Stage);
         }
 
         [Fact]
