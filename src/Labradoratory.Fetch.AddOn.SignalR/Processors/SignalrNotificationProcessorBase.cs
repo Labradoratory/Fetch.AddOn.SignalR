@@ -6,7 +6,6 @@ using Labradoratory.Fetch.AddOn.SignalR.Groups;
 using Labradoratory.Fetch.AddOn.SignalR.Hubs;
 using Labradoratory.Fetch.Processors;
 using Labradoratory.Fetch.Processors.DataPackages;
-using Labradoratory.Fetch.Processors.Stages;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Processors
@@ -16,8 +15,6 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         where THub : Hub, IEntityHub
         where TPackage : BaseEntityDataPackage<TEntity>
     {
-        // TODO: Add the ability to assign custom stage.
-
         /// <summary>
         /// Initializes a new instance of the <see cref="SignalrOnUpdated{TEntity, THub}"/> class.
         /// </summary>
@@ -35,7 +32,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
             GroupNameTransformer = groupNameTransformer;
         }
 
-        public IStage Stage { get; } = new NumericPriorityStage(0);
+        public virtual uint Priority => 0;
 
         protected abstract string Action { get; }
 

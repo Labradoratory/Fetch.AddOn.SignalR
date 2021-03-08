@@ -9,7 +9,6 @@ using Labradoratory.Fetch.AddOn.SignalR.Groups;
 using Labradoratory.Fetch.AddOn.SignalR.Hubs;
 using Labradoratory.Fetch.AddOn.SignalR.Processors;
 using Labradoratory.Fetch.Processors.DataPackages;
-using Labradoratory.Fetch.Processors.Stages;
 using Microsoft.AspNetCore.SignalR;
 using Moq;
 using Xunit;
@@ -25,7 +24,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
         {
             var mockContext = new Mock<IHubContext<TestHub>>(MockBehavior.Strict);
             var subject = new SignalrOnAdded<TestEntity, TestHub>(mockContext.Object, Enumerable.Empty<ISignalrGroupSelector<TestEntity>>());
-            Assert.Equal(new NumericPriorityStage(0), subject.Stage);
+            Assert.Equal(0u, subject.Priority);
         }
         
         [Fact]
