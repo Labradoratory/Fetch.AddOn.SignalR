@@ -1,18 +1,16 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Labradoratory.Fetch.AddOn.SignalR.Groups;
-using Labradoratory.Fetch.AddOn.SignalR.Hubs;
+using Labradoratory.Fetch.AddOn.SignalR.Messaging;
 using Labradoratory.Fetch.Processors;
 using Labradoratory.Fetch.Processors.DataPackages;
-using Microsoft.AspNetCore.SignalR;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Processors
 {
-    public abstract class SignalrNotificationProcessorBase<TEntity, THub, TPackage> : IProcessor<TPackage>
+    public abstract class SignalrNotificationProcessorBase<TEntity, TMessageSender, TPackage> : IProcessor<TPackage>
         where TEntity : Entity
-        where THub : Hub, IEntityHub
+        where TMessageSender : ISignalrMessageSender
         where TPackage : BaseEntityDataPackage<TEntity>
     {
         /// <summary>
@@ -23,11 +21,11 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         /// <param name="groupNameTransformer">[Optional] A transformer to apply to the group name.</param>
         /// <param name="dataTransformer">[Optional] A data transformer to apply before sending the added notification.</param>
         public SignalrNotificationProcessorBase(
-            IHubContext<THub> hubContext,
+            TMessageSender messageSender,
             IEnumerable<ISignalrGroupSelector<TEntity>> groupSelectors,
             ISignalrGroupTransformer groupNameTransformer = null)
         {
-            HubContext = hubContext;
+            MessageSender = messageSender;
             GroupSelectors = groupSelectors;
             GroupNameTransformer = groupNameTransformer;
         }
@@ -36,7 +34,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
 
         protected abstract string Action { get; }
 
-        protected IHubContext<THub> HubContext { get; }
+        protected TMessageSender MessageSender { get; }
         protected IEnumerable<ISignalrGroupSelector<TEntity>> GroupSelectors { get; }
         protected ISignalrGroupTransformer GroupNameTransformer { get; }
 
@@ -64,17 +62,17 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
 
             foreach (var group in groups)
             {
-                var action = group.Append(Action);
                 var transformedGroup = await GroupNameTransformer.TransformIfPossibleAsync(group, cancellationToken);
+                var action = transformedGroup.Append(Action);
                 await SendAsync(transformedGroup, action, data, cancellationToken);
             }
         }
 
         protected abstract Task<object> GetDataAsync(TPackage package, CancellationToken cancellationToken);
 
-        protected virtual Task SendAsync(string group, string action, object data, CancellationToken cancellationToken)
+        protected virtual Task SendAsync(SignalrGroup group, string action, object data, CancellationToken cancellationToken)
         {
-            return HubContext.Clients.Group(group).SendAsync(action, data, cancellationToken);
+            return MessageSender.SendAsync(group, action, data, cancellationToken);
         }
     }
 }

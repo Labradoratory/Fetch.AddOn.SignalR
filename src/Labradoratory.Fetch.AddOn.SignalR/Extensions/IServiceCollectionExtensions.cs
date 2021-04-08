@@ -1,14 +1,9 @@
 ﻿using System;
-using Labradoratory.Fetch;
-using Labradoratory.Fetch.AddOn.SignalR.Data;
 using Labradoratory.Fetch.AddOn.SignalR.DependencyInjection;
-using Labradoratory.Fetch.AddOn.SignalR.Groups;
-using Labradoratory.Fetch.AddOn.SignalR.Hubs;
+using Labradoratory.Fetch.AddOn.SignalR.Messaging;
 using Labradoratory.Fetch.AddOn.SignalR.Processors;
-using Labradoratory.Fetch.Extensions;
 using Labradoratory.Fetch.Processors;
 using Labradoratory.Fetch.Processors.DataPackages;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Extensions
@@ -22,27 +17,41 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Extensions
         /// Adds the fetch signalr processor to handle the requested <see cref="Entity"/> processing actions.
         /// </summary>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
-        /// <typeparam name="THub">The type of the hub.</typeparam>
+        /// <typeparam name="TMessageSender">The type of the message sender.</typeparam>
         /// <param name="serviceCollection">The service collection.</param>
-        /// <param name="notificationName">The name to use in the notifications.</param>
         /// <param name="actions">The actions to notify on.</param>
         /// <returns>The <paramref name="serviceCollection"/> to calls can be chained.</returns>
-        public static IServiceCollection AddFetchSignalrProcessor<TEntity, THub>(
+        public static IServiceCollection AddFetchSignalrProcessor<TEntity, TMessageSender>(
             this IServiceCollection serviceCollection,
             SignalrProcessActions actions = SignalrProcessActions.All)
             where TEntity : Entity
-            where THub : Hub, IEntityHub
+            where TMessageSender : ISignalrMessageSender
         {
             if (actions.HasFlag(SignalrProcessActions.Add))
-                serviceCollection.AddTransient<IProcessor<EntityAddedPackage<TEntity>>, SignalrOnAdded<TEntity, THub>>();
+                serviceCollection.AddTransient<IProcessor<EntityAddedPackage<TEntity>>, SignalrOnAdded<TEntity, TMessageSender>>();
 
             if (actions.HasFlag(SignalrProcessActions.Delete))
-                serviceCollection.AddTransient<IProcessor<EntityDeletedPackage<TEntity>>, SignalrOnDeleted<TEntity, THub>>();
+                serviceCollection.AddTransient<IProcessor<EntityDeletedPackage<TEntity>>, SignalrOnDeleted<TEntity, TMessageSender>>();
 
             if (actions.HasFlag(SignalrProcessActions.Update))
-                serviceCollection.AddTransient<IProcessor<EntityUpdatedPackage<TEntity>>, SignalrOnUpdated<TEntity, THub>>();
+                serviceCollection.AddTransient<IProcessor<EntityUpdatedPackage<TEntity>>, SignalrOnUpdated<TEntity, TMessageSender>>();
 
             return serviceCollection;
+        }
+
+        /// <summary>
+        /// Adds the fetch signalr processor to handle the requested <see cref="Entity"/> processing actions.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="serviceCollection">The service collection.</param>
+        /// <param name="actions">The actions to notify on.</param>
+        /// <returns>The <paramref name="serviceCollection"/> to calls can be chained.</returns>
+        public static IServiceCollection AddFetchSignalrProcessor<TEntity>(
+            this IServiceCollection serviceCollection,
+            SignalrProcessActions actions = SignalrProcessActions.All)
+            where TEntity : Entity
+        {
+            return serviceCollection.AddFetchSignalrProcessor<TEntity, ISignalrMessageSender>(actions);
         }
 
         public static IServiceCollection AddFetchSignalrGroupSelectors<TEntity>(

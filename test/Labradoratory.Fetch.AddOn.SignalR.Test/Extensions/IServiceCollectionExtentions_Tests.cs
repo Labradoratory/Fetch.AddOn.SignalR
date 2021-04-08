@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Labradoratory.Fetch.AddOn.SignalR.Extensions;
 using Labradoratory.Fetch.AddOn.SignalR.Groups;
 using Labradoratory.Fetch.AddOn.SignalR.Hubs;
+using Labradoratory.Fetch.AddOn.SignalR.Messaging;
 using Labradoratory.Fetch.AddOn.SignalR.Processors;
 using Labradoratory.Fetch.Processors;
 using Labradoratory.Fetch.Processors.DataPackages;
@@ -30,24 +31,24 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
                 .Returns(new List<ISignalrGroupSelector<TestEntity>> { Mock.Of<ISignalrGroupSelector<TestEntity>>() });
 
             var subject = subjectMock.Object;
-            var result = subject.AddFetchSignalrProcessor<TestEntity, TestHub>();
+            var result = subject.AddFetchSignalrProcessor<TestEntity>();
 
             Assert.Same(subject, result);
 
             subjectMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v =>
                     v.ServiceType == typeof(IProcessor<EntityAddedPackage<TestEntity>>)
-                    && v.ImplementationType == typeof(SignalrOnAdded<TestEntity, TestHub>))),
+                    && v.ImplementationType == typeof(SignalrOnAdded<TestEntity, ISignalrMessageSender>))),
                 Times.Once);
 
             subjectMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v => v.ServiceType == typeof(IProcessor<EntityDeletedPackage<TestEntity>>)
-                    && v.ImplementationType == typeof(SignalrOnDeleted<TestEntity, TestHub>))),
+                    && v.ImplementationType == typeof(SignalrOnDeleted<TestEntity, ISignalrMessageSender>))),
                 Times.Once);
 
             subjectMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v => v.ServiceType == typeof(IProcessor<EntityUpdatedPackage<TestEntity>>)
-                    && v.ImplementationType == typeof(SignalrOnUpdated<TestEntity, TestHub>))),
+                    && v.ImplementationType == typeof(SignalrOnUpdated<TestEntity, ISignalrMessageSender>))),
                 Times.Once);
         }
 
@@ -66,14 +67,14 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
                 .Returns(new List<ISignalrGroupSelector<TestEntity>> { Mock.Of<ISignalrGroupSelector<TestEntity>>() });
 
             var subject = subjectMock.Object;
-            var result = subject.AddFetchSignalrProcessor<TestEntity, TestHub>(SignalrProcessActions.Add);
+            var result = subject.AddFetchSignalrProcessor<TestEntity>(SignalrProcessActions.Add);
 
             Assert.Same(subject, result);
 
             subjectMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v =>
                     v.ServiceType == typeof(IProcessor<EntityAddedPackage<TestEntity>>)
-                    && v.ImplementationType == typeof(SignalrOnAdded<TestEntity, TestHub>))),
+                    && v.ImplementationType == typeof(SignalrOnAdded<TestEntity, ISignalrMessageSender>))),
                 Times.Once);
 
             subjectMock.Verify(sc => sc.Add(
@@ -100,7 +101,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
                 .Returns(new List<ISignalrGroupSelector<TestEntity>> { Mock.Of<ISignalrGroupSelector<TestEntity>>() });
 
             var subject = subjectMock.Object;
-            var result = subject.AddFetchSignalrProcessor<TestEntity, TestHub>(SignalrProcessActions.Delete);
+            var result = subject.AddFetchSignalrProcessor<TestEntity>(SignalrProcessActions.Delete);
 
             Assert.Same(subject, result);
 
@@ -110,7 +111,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
 
             subjectMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v => v.ServiceType == typeof(IProcessor<EntityDeletedPackage<TestEntity>>)
-                    && v.ImplementationType == typeof(SignalrOnDeleted<TestEntity, TestHub>))),
+                    && v.ImplementationType == typeof(SignalrOnDeleted<TestEntity, ISignalrMessageSender>))),
                 Times.Once);
 
             subjectMock.Verify(sc => sc.Add(
@@ -133,7 +134,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
                 .Returns(new List<ISignalrGroupSelector<TestEntity>> { Mock.Of<ISignalrGroupSelector<TestEntity>>() });
 
             var subject = subjectMock.Object;
-            var result = subject.AddFetchSignalrProcessor<TestEntity, TestHub>(SignalrProcessActions.Update);
+            var result = subject.AddFetchSignalrProcessor<TestEntity>(SignalrProcessActions.Update);
 
             Assert.Same(subject, result);
 
@@ -147,7 +148,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Extensions
 
             subjectMock.Verify(sc => sc.Add(
                 It.Is<ServiceDescriptor>(v => v.ServiceType == typeof(IProcessor<EntityUpdatedPackage<TestEntity>>)
-                    && v.ImplementationType == typeof(SignalrOnUpdated<TestEntity, TestHub>))),
+                    && v.ImplementationType == typeof(SignalrOnUpdated<TestEntity, ISignalrMessageSender>))),
                 Times.Once);
         }
 
