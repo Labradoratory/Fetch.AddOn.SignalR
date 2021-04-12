@@ -4,6 +4,7 @@ using Labradoratory.Fetch.AddOn.SignalR.Messaging;
 using Labradoratory.Fetch.AddOn.SignalR.Processors;
 using Labradoratory.Fetch.Processors;
 using Labradoratory.Fetch.Processors.DataPackages;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Extensions
@@ -13,6 +14,30 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Extensions
     /// </summary>
     public static class IServiceCollectionExtensions
     {
+        /// <summary>
+        /// Adds the fetch signalr default <see cref="ISignalrMessageSender"/> to a <see cref="Hub"/>.
+        /// </summary>
+        /// <typeparam name="THub">The type of the hub.</typeparam>
+        /// <param name="serviceCollection">The service collection.</param>
+        /// <returns></returns>
+        public static IServiceCollection AddFetchSignalrDefaultMessageSenderAsHub<THub>(IServiceCollection serviceCollection) where THub : Hub
+        {
+            serviceCollection.AddTransient<ISignalrMessageSender, HubContextMessageSender<THub>>();
+            return serviceCollection;
+        }
+
+        /// <summary>
+        /// Adds the fetch signalr default <see cref="ISignalrMessageSender"/>.
+        /// </summary>
+        /// <typeparam name="TSender">The type of the sender.</typeparam>
+        /// <param name="serviceCollection">The service collection.</param>
+        /// <returns></returns>
+        public static IServiceCollection AddFetchSignalrDefaultMessageSender<TSender>(IServiceCollection serviceCollection) where TSender : class, ISignalrMessageSender
+        {
+            serviceCollection.AddTransient<ISignalrMessageSender, TSender>();
+            return serviceCollection;
+        }
+
         /// <summary>
         /// Adds the fetch signalr processor to handle the requested <see cref="Entity"/> processing actions.
         /// </summary>
