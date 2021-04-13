@@ -20,7 +20,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Extensions
         /// <typeparam name="THub">The type of the hub.</typeparam>
         /// <param name="serviceCollection">The service collection.</param>
         /// <returns></returns>
-        public static IServiceCollection AddFetchSignalrDefaultMessageSenderAsHub<THub>(IServiceCollection serviceCollection) where THub : Hub
+        public static IServiceCollection AddFetchSignalrDefaultMessageSenderAsHub<THub>(this IServiceCollection serviceCollection) where THub : Hub
         {
             serviceCollection.AddTransient<ISignalrMessageSender, HubContextMessageSender<THub>>();
             return serviceCollection;
@@ -32,7 +32,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Extensions
         /// <typeparam name="TSender">The type of the sender.</typeparam>
         /// <param name="serviceCollection">The service collection.</param>
         /// <returns></returns>
-        public static IServiceCollection AddFetchSignalrDefaultMessageSender<TSender>(IServiceCollection serviceCollection) where TSender : class, ISignalrMessageSender
+        public static IServiceCollection AddFetchSignalrDefaultMessageSender<TSender>(this IServiceCollection serviceCollection) where TSender : class, ISignalrMessageSender
         {
             serviceCollection.AddTransient<ISignalrMessageSender, TSender>();
             return serviceCollection;
