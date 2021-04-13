@@ -8,18 +8,24 @@ using Labradoratory.Fetch.Processors.DataPackages;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Processors
 {
+    /// <summary>
+    /// Base class for processors that send SignalR notifications.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <typeparam name="TMessageSender">The type of the message sender.</typeparam>
+    /// <typeparam name="TPackage">The type of the package.</typeparam>
+    /// <seealso cref="Labradoratory.Fetch.Processors.IProcessor{TPackage}" />
     public abstract class SignalrNotificationProcessorBase<TEntity, TMessageSender, TPackage> : IProcessor<TPackage>
         where TEntity : Entity
         where TMessageSender : ISignalrMessageSender
         where TPackage : BaseEntityDataPackage<TEntity>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SignalrOnUpdated{TEntity, THub}"/> class.
+        /// Initializes a new instance of the <see cref="SignalrNotificationProcessorBase{TEntity, TMessageSender, TPackage}"/> class.
         /// </summary>
-        /// <param name="hubContext">The hub context.</param>
+        /// <param name="messageSender">The message sender.</param>
         /// <param name="groupSelectors">A collection of selctors that will be used to determine the groups to send notifications to.</param>
         /// <param name="groupNameTransformer">[Optional] A transformer to apply to the group name.</param>
-        /// <param name="dataTransformer">[Optional] A data transformer to apply before sending the added notification.</param>
         public SignalrNotificationProcessorBase(
             TMessageSender messageSender,
             IEnumerable<ISignalrGroupSelector<TEntity>> groupSelectors,
@@ -74,5 +80,23 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
         {
             return MessageSender.SendAsync(group, action, data, cancellationToken);
         }
+    }
+
+    public abstract class SignalrNotificationProcessorBase<TEntity, TPackage> : SignalrNotificationProcessorBase<TEntity, ISignalrMessageSender, TPackage>
+        where TEntity : Entity
+        where TPackage : BaseEntityDataPackage<TEntity>
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SignalrNotificationProcessorBase{TEntity, TPackage}"/> class.
+        /// </summary>
+        /// <param name="messageSender">The message sender.</param>
+        /// <param name="groupSelectors">A collection of selctors that will be used to determine the groups to send notifications to.</param>
+        /// <param name="groupNameTransformer">[Optional] A transformer to apply to the group name.</param>
+        public SignalrNotificationProcessorBase(
+            ISignalrMessageSender messageSender,
+            IEnumerable<ISignalrGroupSelector<TEntity>> groupSelectors,
+            ISignalrGroupTransformer groupNameTransformer = null)
+            : base(messageSender, groupSelectors, groupNameTransformer)
+        { }
     }
 }
