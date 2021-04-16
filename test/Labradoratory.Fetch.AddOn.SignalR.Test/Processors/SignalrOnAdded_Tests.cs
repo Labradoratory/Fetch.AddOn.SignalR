@@ -141,7 +141,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             var subject = new SignalrOnAdded<TestEntity>(mockSender.Object, mockSelectors, groupNameTransformer: mockNameTransformer.Object);
             await subject.ProcessAsync(new EntityAddedPackage<TestEntity>(expectedEntity), expectedToken);
 
-            mockSender.Verify(s => s.SendAsync(expectedTransformedGroup, expectedTransformedGroup.Append(expectedAction), expectedEntity, It.IsAny<CancellationToken>()), Times.Once);
+            mockSender.Verify(s => s.SendAsync(expectedTransformedGroup, expectedGroup1.Append(expectedAction), expectedEntity, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         public class TestEntity : Entity

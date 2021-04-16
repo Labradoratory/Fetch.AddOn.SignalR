@@ -76,7 +76,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             var subject = new SignalrOnDeleted<TestEntity>(mockSender.Object, mockSelectors, groupNameTransformer: mockNameTransformer.Object);
             await subject.ProcessAsync(new EntityDeletedPackage<TestEntity>(expectedEntity), expectedToken);
             
-            mockSender.Verify(s => s.SendAsync(expectedTransformedGroup, expectedTransformedGroup.Append(expectedAction), It.Is<object[]>(v => IsKeyMatch(v, expectedKey)), It.IsAny<CancellationToken>()), Times.Once);
+            mockSender.Verify(s => s.SendAsync(expectedTransformedGroup, expectedGroup1.Append(expectedAction), It.Is<object[]>(v => IsKeyMatch(v, expectedKey)), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         private bool IsKeyMatch(object[] keys, object expectedKey)

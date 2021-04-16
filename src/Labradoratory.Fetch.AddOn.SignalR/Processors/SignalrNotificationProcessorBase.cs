@@ -68,8 +68,8 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
 
             foreach (var group in groups)
             {
+                var action = group.Append(Action);
                 var transformedGroup = await GroupNameTransformer.TransformIfPossibleAsync(group, cancellationToken);
-                var action = transformedGroup.Append(Action);
                 await SendAsync(transformedGroup, action, data, cancellationToken);
             }
         }
