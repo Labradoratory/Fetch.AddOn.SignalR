@@ -5,6 +5,7 @@ using Labradoratory.Fetch.AddOn.SignalR.Groups;
 using Labradoratory.Fetch.AddOn.SignalR.Messaging;
 using Labradoratory.Fetch.Processors;
 using Labradoratory.Fetch.Processors.DataPackages;
+using Labradoratory.Fetch.Processors.Stages;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Processors
 {
@@ -36,7 +37,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Processors
             GroupNameTransformer = groupNameTransformer;
         }
 
-        public virtual uint Priority => 0;
+        public virtual IStage Stage => NumericPriorityStage.Zero;
 
         protected abstract string Action { get; }
 

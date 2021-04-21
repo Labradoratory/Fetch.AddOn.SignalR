@@ -6,6 +6,7 @@ using Labradoratory.Fetch.AddOn.SignalR.Groups;
 using Labradoratory.Fetch.AddOn.SignalR.Messaging;
 using Labradoratory.Fetch.AddOn.SignalR.Processors;
 using Labradoratory.Fetch.Processors.DataPackages;
+using Labradoratory.Fetch.Processors.Stages;
 using Moq;
 using Xunit;
 
@@ -18,7 +19,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
         {
             var mockSender = new Mock<ISignalrMessageSender>(MockBehavior.Strict);
             var subject = new SignalrOnDeleted<TestEntity>(mockSender.Object, Enumerable.Empty<ISignalrGroupSelector<TestEntity>>());
-            Assert.Equal(0u, subject.Priority);
+            Assert.Equal(NumericPriorityStage.Zero, subject.Stage);
         }
 
         [Fact]

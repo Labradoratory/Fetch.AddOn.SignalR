@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Labradoratory.Fetch.AddOn.SignalR.Data;
 using Labradoratory.Fetch.AddOn.SignalR.Groups;
-using Labradoratory.Fetch.AddOn.SignalR.Hubs;
 using Labradoratory.Fetch.AddOn.SignalR.Messaging;
 using Labradoratory.Fetch.AddOn.SignalR.Processors;
 using Labradoratory.Fetch.Processors.DataPackages;
-using Microsoft.AspNetCore.SignalR;
+using Labradoratory.Fetch.Processors.Stages;
 using Moq;
 using Xunit;
 
@@ -25,7 +22,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
         {
             var mockSender = new Mock<ISignalrMessageSender>(MockBehavior.Strict);
             var subject = new SignalrOnAdded<TestEntity>(mockSender.Object, Enumerable.Empty<ISignalrGroupSelector<TestEntity>>());
-            Assert.Equal(0u, subject.Priority);
+            Assert.Equal(NumericPriorityStage.Zero, subject.Stage);
         }
         
         [Fact]

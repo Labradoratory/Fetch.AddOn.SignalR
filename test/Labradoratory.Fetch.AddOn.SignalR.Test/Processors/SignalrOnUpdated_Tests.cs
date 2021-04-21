@@ -11,6 +11,7 @@ using Labradoratory.Fetch.AddOn.SignalR.Processors;
 using Labradoratory.Fetch.ChangeTracking;
 using Labradoratory.Fetch.Extensions;
 using Labradoratory.Fetch.Processors.DataPackages;
+using Labradoratory.Fetch.Processors.Stages;
 using Microsoft.AspNetCore.SignalR;
 using Moq;
 using Xunit;
@@ -24,7 +25,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
         {
             var mockSender = new Mock<ISignalrMessageSender>(MockBehavior.Strict);
             var subject = new SignalrOnUpdated<TestEntity>(mockSender.Object, Enumerable.Empty<ISignalrGroupSelector<TestEntity>>());
-            Assert.Equal(0u, subject.Priority);
+            Assert.Equal(NumericPriorityStage.Zero, subject.Stage);
         }
 
         [Fact]
