@@ -17,8 +17,8 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
         [Fact]
         public void Priority_Zero()
         {
-            var mockSender = new Mock<ISignalrMessageSender>(MockBehavior.Strict);
-            var subject = new SignalrOnDeleted<TestEntity>(mockSender.Object, Enumerable.Empty<ISignalrGroupSelector<TestEntity>>());
+            var mockSenderProvider = new Mock<ISignalrMessageSenderProvider>(MockBehavior.Strict);
+            var subject = new SignalrOnDeleted<TestEntity>(mockSenderProvider.Object, Enumerable.Empty<ISignalrGroupSelector<TestEntity>>());
             Assert.Equal(NumericPriorityStage.Zero, subject.Stage);
         }
 
@@ -38,13 +38,16 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             var mockSender = new Mock<ISignalrMessageSender>(MockBehavior.Strict);
             mockSender.Setup(s => s.SendAsync(It.IsAny<SignalrGroup>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
+            var mockSenderProvider = new Mock<ISignalrMessageSenderProvider>(MockBehavior.Strict);
+            mockSenderProvider.Setup(p => p.Get()).Returns(mockSender.Object);
+
             var mockSelector1 = new Mock<ISignalrGroupSelector<TestEntity>>(MockBehavior.Strict);
             mockSelector1.Setup(s => s.GetGroupAsync(It.IsAny<BaseEntityDataPackage<TestEntity>>(), It.IsAny<CancellationToken>())).ReturnsAsync(new[] { expectedGroup1, expectedGroup1_2 });
             var mockSelector2 = new Mock<ISignalrGroupSelector<TestEntity>>(MockBehavior.Strict);
             mockSelector2.Setup(s => s.GetGroupAsync(It.IsAny<BaseEntityDataPackage<TestEntity>>(), It.IsAny<CancellationToken>())).ReturnsAsync(new[] { expectedGroup2 });
             var mockSelectors = new[] { mockSelector1.Object, mockSelector2.Object };
 
-            var subject = new SignalrOnDeleted<TestEntity>(mockSender.Object, mockSelectors);
+            var subject = new SignalrOnDeleted<TestEntity>(mockSenderProvider.Object, mockSelectors);
             await subject.ProcessAsync(new EntityDeletedPackage<TestEntity>(expectedEntity), expectedToken);
 
             mockSender.Verify(p => p.SendAsync(expectedGroup1, expectedGroup1.Append(expectedAction), It.Is<object[]>(v => IsKeyMatch(v, expectedKey)), It.IsAny<CancellationToken>()), Times.Once);
@@ -67,6 +70,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             var mockSender = new Mock<ISignalrMessageSender>(MockBehavior.Strict);
             mockSender.Setup(s => s.SendAsync(It.IsAny<SignalrGroup>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
+            var mockSenderProvider = new Mock<ISignalrMessageSenderProvider>(MockBehavior.Strict);
+            mockSenderProvider.Setup(p => p.Get()).Returns(mockSender.Object);
+
             var mockSelector1 = new Mock<ISignalrGroupSelector<TestEntity>>(MockBehavior.Strict);
             mockSelector1.Setup(s => s.GetGroupAsync(It.IsAny<BaseEntityDataPackage<TestEntity>>(), It.IsAny<CancellationToken>())).ReturnsAsync(new[] { expectedGroup1 });
             var mockSelectors = new[] { mockSelector1.Object };
@@ -74,7 +80,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             var mockNameTransformer = new Mock<ISignalrGroupTransformer>(MockBehavior.Strict);
             mockNameTransformer.Setup(t => t.TransformAsync(It.Is<SignalrGroup>(v => v == expectedGroup1), It.IsAny<CancellationToken>())).ReturnsAsync(expectedTransformedGroup);
 
-            var subject = new SignalrOnDeleted<TestEntity>(mockSender.Object, mockSelectors, groupNameTransformer: mockNameTransformer.Object);
+            var subject = new SignalrOnDeleted<TestEntity>(mockSenderProvider.Object, mockSelectors, groupNameTransformer: mockNameTransformer.Object);
             await subject.ProcessAsync(new EntityDeletedPackage<TestEntity>(expectedEntity), expectedToken);
             
             mockSender.Verify(s => s.SendAsync(expectedTransformedGroup, expectedGroup1.Append(expectedAction), It.Is<object[]>(v => IsKeyMatch(v, expectedKey)), It.IsAny<CancellationToken>()), Times.Once);

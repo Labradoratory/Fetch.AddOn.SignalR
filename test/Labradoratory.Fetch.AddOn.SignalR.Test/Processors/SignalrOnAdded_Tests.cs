@@ -20,7 +20,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
         [Fact]
         public void Priority_Zero()
         {
-            var mockSender = new Mock<ISignalrMessageSender>(MockBehavior.Strict);
+            var mockSender = new Mock<ISignalrMessageSenderProvider>(MockBehavior.Strict);
             var subject = new SignalrOnAdded<TestEntity>(mockSender.Object, Enumerable.Empty<ISignalrGroupSelector<TestEntity>>());
             Assert.Equal(NumericPriorityStage.Zero, subject.Stage);
         }
@@ -42,13 +42,16 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             var mockSender = new Mock<ISignalrMessageSender>(MockBehavior.Strict);
             mockSender.Setup(s => s.SendAsync(It.IsAny<SignalrGroup>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
+            var mockSenderProvider = new Mock<ISignalrMessageSenderProvider>(MockBehavior.Strict);
+            mockSenderProvider.Setup(p => p.Get()).Returns(mockSender.Object);
+
             var mockSelector1 = new Mock<ISignalrGroupSelector<TestEntity>>(MockBehavior.Strict);
             mockSelector1.Setup(s => s.GetGroupAsync(It.IsAny<BaseEntityDataPackage<TestEntity>>(), It.IsAny<CancellationToken>())).ReturnsAsync(new[] { expectedGroup1, expectedGroup1_2 });
             var mockSelector2 = new Mock<ISignalrGroupSelector<TestEntity>>(MockBehavior.Strict);
             mockSelector2.Setup(s => s.GetGroupAsync(It.IsAny<BaseEntityDataPackage<TestEntity>>(), It.IsAny<CancellationToken>())).ReturnsAsync(new[] { expectedGroup2 });
             var mockSelectors = new[] { mockSelector1.Object, mockSelector2.Object };
 
-            var subject = new SignalrOnAdded<TestEntity>(mockSender.Object, mockSelectors);
+            var subject = new SignalrOnAdded<TestEntity>(mockSenderProvider.Object, mockSelectors);
             await subject.ProcessAsync(new EntityAddedPackage<TestEntity>(expectedEntity), expectedToken);
 
             mockSender.Verify(p => p.SendAsync(expectedGroup1, expectedGroup1.Append(expectedAction), expectedEntity, It.IsAny<CancellationToken>()), Times.Once);
@@ -72,6 +75,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             var mockSender = new Mock<ISignalrMessageSender>(MockBehavior.Strict);
             mockSender.Setup(s => s.SendAsync(It.IsAny<SignalrGroup>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
+            var mockSenderProvider = new Mock<ISignalrMessageSenderProvider>(MockBehavior.Strict);
+            mockSenderProvider.Setup(p => p.Get()).Returns(mockSender.Object);
+
             var mockSelector1 = new Mock<ISignalrGroupSelector<TestEntity>>(MockBehavior.Strict);
             mockSelector1.Setup(s => s.GetGroupAsync(It.IsAny<BaseEntityDataPackage<TestEntity>>(), It.IsAny<CancellationToken>())).ReturnsAsync(new[] { expectedGroup1 });
             var mockSelectors = new[] { mockSelector1.Object };
@@ -79,7 +85,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             var mockDataTransformer = new Mock<ISignalrAddDataTransformer<TestEntity>>(MockBehavior.Strict);
             mockDataTransformer.Setup(t => t.TransformAsync(It.IsAny<EntityAddedPackage<TestEntity>>(), It.IsAny<CancellationToken>())).ReturnsAsync(expectedData);
 
-            var subject = new SignalrOnAdded<TestEntity>(mockSender.Object, mockSelectors, dataTransformer: mockDataTransformer.Object);
+            var subject = new SignalrOnAdded<TestEntity>(mockSenderProvider.Object, mockSelectors, dataTransformer: mockDataTransformer.Object);
             await subject.ProcessAsync(expectedPackage, expectedToken);
 
             mockSender.Verify(s => s.SendAsync(expectedGroup1, expectedAction, expectedData, It.IsAny<CancellationToken>()), Times.Never);
@@ -99,6 +105,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             var mockSender = new Mock<ISignalrMessageSender>(MockBehavior.Strict);
             mockSender.Setup(s => s.SendAsync(It.IsAny<SignalrGroup>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()));
 
+            var mockSenderProvider = new Mock<ISignalrMessageSenderProvider>(MockBehavior.Strict);
+            mockSenderProvider.Setup(p => p.Get()).Returns(mockSender.Object);
+
             var mockSelector1 = new Mock<ISignalrGroupSelector<TestEntity>>(MockBehavior.Strict);
             mockSelector1.Setup(s => s.GetGroupAsync(It.IsAny<BaseEntityDataPackage<TestEntity>>(), It.IsAny<CancellationToken>())).ReturnsAsync(new[] { expectedGroup1 });
             var mockSelectors = new[] { mockSelector1.Object };
@@ -106,7 +115,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             var mockDataTransformer = new Mock<ISignalrAddDataTransformer<TestEntity>>(MockBehavior.Strict);
             mockDataTransformer.Setup(t => t.TransformAsync(It.IsAny<EntityAddedPackage<TestEntity>>(), It.IsAny<CancellationToken>())).ReturnsAsync(null);
 
-            var subject = new SignalrOnAdded<TestEntity>(mockSender.Object, mockSelectors, dataTransformer: mockDataTransformer.Object);
+            var subject = new SignalrOnAdded<TestEntity>(mockSenderProvider.Object, mockSelectors, dataTransformer: mockDataTransformer.Object);
             await subject.ProcessAsync(expectedPackage, expectedToken);
 
             mockDataTransformer.Verify(t => t.TransformAsync(expectedPackage, It.IsAny<CancellationToken>()), Times.Once);
@@ -128,6 +137,9 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             var mockSender = new Mock<ISignalrMessageSender>(MockBehavior.Strict);
             mockSender.Setup(s => s.SendAsync(It.IsAny<SignalrGroup>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
+            var mockSenderProvider = new Mock<ISignalrMessageSenderProvider>(MockBehavior.Strict);
+            mockSenderProvider.Setup(p => p.Get()).Returns(mockSender.Object);
+
             var mockSelector1 = new Mock<ISignalrGroupSelector<TestEntity>>(MockBehavior.Strict);
             mockSelector1.Setup(s => s.GetGroupAsync(It.IsAny<BaseEntityDataPackage<TestEntity>>(), It.IsAny<CancellationToken>())).ReturnsAsync(new[] { expectedGroup1 });
             var mockSelectors = new[] { mockSelector1.Object };
@@ -135,7 +147,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
             var mockNameTransformer = new Mock<ISignalrGroupTransformer>(MockBehavior.Strict);
             mockNameTransformer.Setup(t => t.TransformAsync(It.Is<SignalrGroup>(v => v == expectedGroup1), It.IsAny<CancellationToken>())).ReturnsAsync(expectedTransformedGroup);
 
-            var subject = new SignalrOnAdded<TestEntity>(mockSender.Object, mockSelectors, groupNameTransformer: mockNameTransformer.Object);
+            var subject = new SignalrOnAdded<TestEntity>(mockSenderProvider.Object, mockSelectors, groupNameTransformer: mockNameTransformer.Object);
             await subject.ProcessAsync(new EntityAddedPackage<TestEntity>(expectedEntity), expectedToken);
 
             mockSender.Verify(s => s.SendAsync(expectedTransformedGroup, expectedGroup1.Append(expectedAction), expectedEntity, It.IsAny<CancellationToken>()), Times.Once);
