@@ -11,6 +11,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>$(AssemblyName).Test</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+    
+  <ItemGroup>
     <PackageReference Include="Labradoratory.Fetch" Version="1.0.0-beta.33" />
     <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="3.1.14" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
