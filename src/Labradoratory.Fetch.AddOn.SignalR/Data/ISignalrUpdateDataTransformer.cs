@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Labradoratory.Fetch.Processors.DataPackages;
-using Microsoft.AspNetCore.JsonPatch.Operations;
 
 namespace Labradoratory.Fetch.AddOn.SignalR.Data
 {
