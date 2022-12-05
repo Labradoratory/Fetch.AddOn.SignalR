@@ -84,7 +84,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
     /// </remarks>
     public interface IEntityHub
     {
-        Task SubscribeEntity(IEnumerable<object> groupParts);
-        Task UnsubscribeEntity(IEnumerable<object> groupParts);
+        Task SubscribeEntity(List<object> groupParts);
+        Task UnsubscribeEntity(List<object> groupParts);
     }
 }
