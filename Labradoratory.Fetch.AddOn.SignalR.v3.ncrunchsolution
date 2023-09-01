@@ -1,0 +1,9 @@
+﻿<SolutionConfiguration>
+  <Settings>
+    <AllowParallelTestExecution>True</AllowParallelTestExecution>
+    <MetricsExclusionList>
+      <Value>test\Labradoratory.Fetch.AddOn.SignalR.Test\Labradoratory.Fetch.AddOn.SignalR.Test.csproj</Value>
+    </MetricsExclusionList>
+    <SolutionConfigured>True</SolutionConfigured>
+  </Settings>
+</SolutionConfiguration>

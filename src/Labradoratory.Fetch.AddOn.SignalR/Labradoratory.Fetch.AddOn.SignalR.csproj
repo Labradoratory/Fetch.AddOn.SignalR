@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Authors>Ed Downs</Authors>
+    <Company>Labradoratory</Company>
+    <RepositoryType>github</RepositoryType>
+    <PackageTags>signalr, fetch, aspnetcore</PackageTags>
+    <Description>An add-on for the Fetch repository that adds SignalR notifications related to entity changes.</Description>
+    <Copyright>2019</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>$(AssemblyName).Test</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+    
+  <ItemGroup>
+    <PackageReference Include="Labradoratory.Fetch" Version="1.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="3.1.14" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
+  </ItemGroup>
+
+</Project>
