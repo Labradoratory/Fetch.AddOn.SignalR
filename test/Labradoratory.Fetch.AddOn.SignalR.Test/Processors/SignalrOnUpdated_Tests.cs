@@ -191,12 +191,12 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Test.Processors
 
         public class TestHub : Hub, IEntityHub
         {
-            public Task SubscribeEntity(IEnumerable<object> groupParts)
+            public Task SubscribeEntity(List<object> groupParts)
             {
                 throw new NotImplementedException();
             }
 
-            public Task UnsubscribeEntity(IEnumerable<object> groupParts)
+            public Task UnsubscribeEntity(List<object> groupParts)
             {
                 throw new NotImplementedException();
             }

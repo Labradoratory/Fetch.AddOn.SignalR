@@ -21,9 +21,21 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Extensions
         /// <typeparam name="THub">The type of the hub.</typeparam>
         /// <param name="serviceCollection">The service collection.</param>
         /// <returns></returns>
-        public static IServiceCollection AddFetchSignalrDefaultMessageSenderAsHub<THub>(this IServiceCollection serviceCollection) where THub : Hub
+        public static IServiceCollection AddFetchSignalrDefaultMessageSenderAsHub<THub>(
+            this IServiceCollection serviceCollection,
+            Func<IServiceProvider, HubContextMessageSender<THub>> initializer = null)
+            where THub : Hub
         {
-            serviceCollection.AddTransient<ISignalrMessageSender, HubContextMessageSender<THub>>();
+            if (initializer == null)
+            {
+                serviceCollection.AddTransient<HubContextMessageSender<THub>>();
+                serviceCollection.AddTransient<ISignalrMessageSender, HubContextMessageSender<THub>>();
+            }
+            else
+            {
+                serviceCollection.AddTransient(initializer);
+                serviceCollection.AddTransient<ISignalrMessageSender, HubContextMessageSender<THub>>(sp => sp.GetRequiredService<HubContextMessageSender<THub>>());
+            }
             return serviceCollection.AddFetchSignalrTransactions();
         }
 
@@ -33,9 +45,21 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Extensions
         /// <typeparam name="TSender">The type of the sender.</typeparam>
         /// <param name="serviceCollection">The service collection.</param>
         /// <returns></returns>
-        public static IServiceCollection AddFetchSignalrDefaultMessageSender<TSender>(this IServiceCollection serviceCollection) where TSender : class, ISignalrMessageSender
+        public static IServiceCollection AddFetchSignalrDefaultMessageSender<TSender>(
+            this IServiceCollection serviceCollection,
+            Func<IServiceProvider, TSender> initializer = null)
+            where TSender : class, ISignalrMessageSender
         {
-            serviceCollection.AddTransient<ISignalrMessageSender, TSender>();
+            if (initializer == null)
+            {
+                serviceCollection.AddTransient<TSender>();
+                serviceCollection.AddTransient<ISignalrMessageSender, TSender>();
+            }
+            else
+            {
+                serviceCollection.AddTransient(initializer);
+                serviceCollection.AddTransient<ISignalrMessageSender, TSender>(sp => sp.GetRequiredService<TSender>());
+            }
             return serviceCollection.AddFetchSignalrTransactions();
         }
 

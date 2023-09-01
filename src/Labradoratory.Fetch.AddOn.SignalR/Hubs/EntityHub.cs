@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -54,7 +53,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
         /// </list>
         /// </param>
         /// <exception cref="ArgumentException">path</exception>
-        public virtual async Task SubscribeEntity(IEnumerable<object> groupParts)
+        public virtual async Task SubscribeEntity(List<object> groupParts)
         {
             await GetGroups().AddToGroupAsync(
                 Context.ConnectionId, 
@@ -68,7 +67,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
         /// <remarks>
         /// Must have called the Subscribe method with the <paramref name="path"/> in order to unsubscribe.
         /// </remarks>
-        public virtual async Task UnsubscribeEntity(IEnumerable<object> groupParts)
+        public virtual async Task UnsubscribeEntity(List<object> groupParts)
         {
             await GetGroups().RemoveFromGroupAsync(
                 Context.ConnectionId, 
@@ -85,7 +84,7 @@ namespace Labradoratory.Fetch.AddOn.SignalR.Hubs
     /// </remarks>
     public interface IEntityHub
     {
-        Task SubscribeEntity(IEnumerable<object> groupParts);
-        Task UnsubscribeEntity(IEnumerable<object> groupParts);
+        Task SubscribeEntity(List<object> groupParts);
+        Task UnsubscribeEntity(List<object> groupParts);
     }
 }
